@@ -111,5 +111,29 @@ class ApiService {
   }
 
 
+  Future<Either<Map<String, dynamic>, Map<String, dynamic>>> deleteExam(String courseId, String examId) async {
+    String url = 'http://192.168.0.106:8000/api/courses/$courseId/exams/$examId/';
+
+    final response = await http.delete(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      // body: jsonEncode(examData),
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      print(responseBody);
+      return Right(responseBody);
+      // return const Right({
+      //   "msg": "SuccessFully Deleted"
+      // });
+    } else {
+      final Map<String, dynamic> errorBody = jsonDecode(response.body);
+      print(errorBody);
+      return Left(errorBody);
+    }
+  }
+
 
 }

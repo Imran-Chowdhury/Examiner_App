@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import '../riverpod/course_details_riverpod.dart';
 
@@ -30,6 +31,20 @@ class _CourseDetailsScreenState extends ConsumerState<CourseDetailsScreen> {
 
     final examsAsync = ref.watch(examsProvider(widget.courseId));
 
+    ref.listen<AsyncValue<String>>(deleteExamProvider, (previous, next) {
+      next.when(
+        data: (message) async {
+          Fluttertoast.showToast(msg:message);
+          await ref.refresh(examsProvider(widget.courseId).notifier).getExams(widget.courseId); // Refresh exams
+        },
+        error: (error, stackTrace) {
+          Fluttertoast.showToast(msg: 'Error: $error');
+        },
+          loading: () => const Center(child: CircularProgressIndicator()),
+      );
+    });
+
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Exams for Course ${widget.courseId}'),
@@ -41,7 +56,9 @@ class _CourseDetailsScreenState extends ConsumerState<CourseDetailsScreen> {
             return const Center(
               child: Text(
                 'No exams available. Add a new exam!',
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(
+                  color: Colors.white70,
+                    fontSize: 18),
               ),
             );
           }
@@ -51,20 +68,24 @@ class _CourseDetailsScreenState extends ConsumerState<CourseDetailsScreen> {
             itemBuilder: (context, index) {
               print(exams);
               return ListTile(
+                onLongPress: (){
+                  _showDeleteDialog(context, exams[index]['id'].toString(), widget.courseId);
+
+                },
                 title: Text(
                     'Exam Date: ${exams[index]['exam_date']}',
-                        style: TextStyle(color: Colors.white70),
+                        style: const TextStyle(color: Colors.white70),
                 ),
                 subtitle: Text(
                   'Room: ${exams[index]['room']}',
-                  style: TextStyle(color: Colors.white70),
+                  style: const TextStyle(color: Colors.white70),
                 ),
               );
             },
           );
 
         },
-        loading: () => const Center(child: const CircularProgressIndicator()),
+        loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error: $error')),
       ),
       floatingActionButton: FloatingActionButton(
@@ -78,6 +99,32 @@ class _CourseDetailsScreenState extends ConsumerState<CourseDetailsScreen> {
           );
         },
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+  void _showDeleteDialog(BuildContext context, String examId, String courseId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Exam'),
+        content: const Text('Are you sure you want to delete this exam?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              // Call the delete function
+              await ref.read(deleteExamProvider.notifier).deleteExam(courseId, examId);
+              Navigator.of(context).pop(); // Close the dialog
+
+              // await ref.refresh(examsProvider(widget.courseId).notifier).getExams(widget.courseId);
+
+            },
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
   }
@@ -163,6 +210,7 @@ class _AddExamDialogState extends ConsumerState<AddExamDialog> {
           },
           child: const Text('Cancel'),
         ),
+
         if (addExamState is AsyncLoading) const CircularProgressIndicator(),
         if (addExamState is! AsyncLoading)
           TextButton(
@@ -180,10 +228,19 @@ class _AddExamDialogState extends ConsumerState<AddExamDialog> {
                     .read(addExamProvider.notifier)
                     .addExam( widget.semesterId,widget.courseId, roomId.toString(), examData);
 
-                // ref.invalidate(examsProvider(widget.courseId)); // Refresh exams
-                // await ref.read(examsProvider(widget.courseId).notifier).getExams(widget.courseId);
+                if(addExamState is AsyncData){
+                  await ref.refresh(examsProvider(widget.courseId).notifier).getExams(widget.courseId);
+                }
 
-                await ref.refresh(examsProvider(widget.courseId).notifier).getExams(widget.courseId);
+
+
+              if(addExamState is AsyncError){
+                Fluttertoast.showToast(msg: addExamState.value);
+              }
+
+
+
+                // await ref.refresh(examsProvider(widget.courseId).notifier).getExams(widget.courseId);
 
 
 

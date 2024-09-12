@@ -28,4 +28,9 @@ class CourseDetailsRepositoryImpl implements CourseDetailsRepository {
 
     return apiService.getExams(courseId);
   }
+
+  @override
+  Future<Either<Map<String, dynamic>, Map<String, dynamic>>> deleteExam(String courseId, String examId) {
+    return apiService.deleteExam(courseId, examId);
+  }
 }
