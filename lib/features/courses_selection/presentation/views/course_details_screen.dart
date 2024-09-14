@@ -1,15 +1,33 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import '../riverpod/course_details_riverpod.dart';
+import 'exam_screen.dart';
+
+import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
 
 
 class CourseDetailsScreen extends ConsumerStatefulWidget {
   final String courseId;
   final String semesterId;
+  final String courseName;
 
-  const CourseDetailsScreen({required this.courseId, required this.semesterId});
+  final FaceDetector faceDetector;
+  late List<CameraDescription> cameras;
+  final tf_lite.Interpreter interpreter;
+  final tf_lite.IsolateInterpreter isolateInterpreter;
+
+   CourseDetailsScreen({
+     required this.courseId,
+     required this.semesterId,
+     required this.courseName,
+    required this.isolateInterpreter,
+    required this.faceDetector,
+    required this.cameras,
+    required this.interpreter,});
 
   @override
   _CourseDetailsScreenState createState() => _CourseDetailsScreenState();
@@ -71,6 +89,26 @@ class _CourseDetailsScreenState extends ConsumerState<CourseDetailsScreen> {
                 onLongPress: (){
                   _showDeleteDialog(context, exams[index]['id'].toString(), widget.courseId);
 
+                },
+                onTap: (){
+                  Navigator.push(
+                    context,
+                    // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => ExamScreen(
+                        day: exams[index]['exam_date'],
+                        // attendedStudentsMap: attendanceSheet,
+                        courseName: widget.courseName,
+                        interpreter: widget.interpreter,
+                        isolateInterpreter: widget.isolateInterpreter,
+                        cameras: widget.cameras,
+                        faceDetector: widget.faceDetector,
+                        semesterId: widget.semesterId,
+                        examId: exams[index]['id'].toString(),
+
+                      ),
+                    ),
+                  );
                 },
                 title: Text(
                     'Exam Date: ${exams[index]['exam_date']}',

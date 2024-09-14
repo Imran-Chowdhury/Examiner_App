@@ -15,7 +15,7 @@ import '../../../../core/base_state/course_screen_state.dart';
 import '../../../../core/constants/constants.dart';
 import '../../../../core/utils/background_widget.dart';
 import '../riverpod/course_screen_riverpod.dart';
-import 'course_day.dart';
+import 'exam_screen.dart';
 
 // ignore: must_be_immutable
 class CourseScreen extends ConsumerStatefulWidget {
@@ -252,21 +252,22 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
       FaceDetector faceDetector,
       List<CameraDescription> cameras,
       tf_lite.Interpreter interpreter) {
-    Navigator.push(
-      context,
-      // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
-      MaterialPageRoute(
-        builder: (context) => CourseDayScreen(
-          day: day,
-          attendedStudentsMap: attendanceSheet,
-          courseName: courseName,
-          interpreter: interpreter,
-          isolateInterpreter: isolateInterpreter,
-          cameras: cameras,
-          faceDetector: faceDetector,
-        ),
-      ),
-    );
+    // Navigator.push(
+    //   context,
+    //   // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
+    //   MaterialPageRoute(
+    //     builder: (context) => ExamScreen(
+    //       day: day,
+    //       attendedStudentsMap: attendanceSheet,
+    //       courseName: courseName,
+    //       interpreter: interpreter,
+    //       isolateInterpreter: isolateInterpreter,
+    //       cameras: cameras,
+    //       faceDetector: faceDetector,
+    //
+    //     ),
+    //   ),
+    // );
   }
 
   // Future<Map<String, List<dynamic>>> getAllStudentsMap(

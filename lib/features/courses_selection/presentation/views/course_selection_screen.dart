@@ -72,8 +72,13 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => CourseDetailsScreen(
+                            courseName:courses[index]['name'].toString(),
                             courseId: courses[index]['id'].toString(), // Pass courseId
                             semesterId: widget.semesterId, // Pass semesterId
+                            isolateInterpreter: widget.isolateInterpreter,
+                            faceDetector: widget.faceDetector,
+                            cameras: widget.cameras,
+                            interpreter: widget.interpreter,
                           ),
                         ),
                       );
@@ -179,7 +184,7 @@ class _AddCourseDialogState extends ConsumerState<AddCourseDialog> {
 // import '../../../../core/constants/constants.dart';
 // import '../../../../core/utils/background_widget.dart';
 // import '../riverpod/course_screen_riverpod.dart';
-// import 'course_day.dart';
+// import 'exam_screen.dart';
 //
 // // ignore: must_be_immutable
 // class CourseSelectionScreen extends ConsumerStatefulWidget {

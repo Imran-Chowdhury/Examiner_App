@@ -1,14 +1,19 @@
-// import 'dart:async';
+
+
+import 'dart:convert';
 
 import 'package:camera/camera.dart';
+import 'package:face_roll_teacher/features/courses_selection/presentation/riverpod/exam_riverpod.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
 
-import '../../../../core/base_state/attendance_state.dart';
+
 
 import '../../../../core/constants/constants.dart';
 import '../../../../core/utils/background_widget.dart';
@@ -19,22 +24,24 @@ import '../../../recognize_face/presentation/riverpod/recognize_face_provider.da
 import '../riverpod/attendance_riverpod.dart';
 
 // ignore: must_be_immutable
-class CourseDayScreen extends ConsumerStatefulWidget {
+class ExamScreen extends ConsumerStatefulWidget {
   @override
-  ConsumerState<CourseDayScreen> createState() => _CourseDayScreenState();
+  ConsumerState<ExamScreen> createState() => _ExamScreenState();
 
-  CourseDayScreen({
+   ExamScreen({
     super.key,
-    required this.attendedStudentsMap,
+    // required this.attendedStudentsMap,
     required this.day,
     required this.courseName,
     required this.isolateInterpreter,
     required this.faceDetector,
     required this.cameras,
     required this.interpreter,
+    required this.examId,
+    required this.semesterId,
   });
 
-  Map<String, List<dynamic>> attendedStudentsMap;
+  // Map<String, List<dynamic>> attendedStudentsMap;
   String day;
   String courseName;
 
@@ -42,39 +49,103 @@ class CourseDayScreen extends ConsumerStatefulWidget {
   late List<CameraDescription> cameras;
   final tf_lite.Interpreter interpreter;
   final tf_lite.IsolateInterpreter isolateInterpreter;
+  final String examId;
+  final String semesterId;
 
   // List<String> attendedStudentsList;
 }
 
 // 2. extend [ConsumerState]
-class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
+class _ExamScreenState extends ConsumerState<ExamScreen> {
   List<dynamic>? attended;
+  late List<dynamic> allStudent;
   @override
   void initState() {
-    attended = mapToList(widget.attendedStudentsMap, widget.day);
+    // attended = mapToList(widget.attendedStudentsMap, widget.day);
+    getStudentList(widget.examId);
     super.initState();
+  }
+
+
+// Function to retrieve the list from shared preferences using the examId as the key
+  Future<void> getStudentList(String examId) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Retrieve the JSON string using the examId as the key
+    String? encodedStudentList = prefs.getString(examId);
+
+    // If no data found, return null
+    if (encodedStudentList == null) {
+      Fluttertoast.showToast(msg: 'Select a proper range');
+    }else{
+      // Decode the JSON string back to a list of students
+      allStudent = jsonDecode(encodedStudentList);
+      print(allStudent);
+    }
+
+
+
+    // return studentList;
   }
 
   @override
   Widget build(BuildContext context) {
     // Constants constant = Constants();
-    String family = "${widget.courseName}- ${widget.day}";
+    String family = widget.examId;
     final detectController = ref.watch(faceDetectionProvider(family).notifier);
     final recognizeController =
         ref.watch(recognizefaceProvider(family).notifier);
+    //
+    // final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    //
+    // var attendanceState = ref.watch(attendanceProvider(family));
+    // AttendanceNotifier attendanceController =
+    //     ref.watch(attendanceProvider(family).notifier);
+    //
+    // // List<dynamic>? attended = mapToList(widget.attendedStudentsMap, widget.day);
+    // print('the attended list is $attended');
+    //
+    // if (attendanceState is AttendanceSuccessState) {
+    //   attended = attendanceState.data;
+    // }
 
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    ref.listen<AsyncValue<List<dynamic>>>(getAStudentProvider(widget.examId), (previous, next) {
+      next.when(
+        data: (students) async {
 
-    var attendanceState = ref.watch(attendanceProvider(family));
-    AttendanceNotifier attendanceController =
-        ref.watch(attendanceProvider(family).notifier);
+          if(students.isEmpty){
+            Fluttertoast.showToast(msg:'An Error Occurred');
+          }else{
+            allStudent = students;
+            Fluttertoast.showToast(msg:'Student List Updated');
+          }
 
-    // List<dynamic>? attended = mapToList(widget.attendedStudentsMap, widget.day);
-    print('the attended list is $attended');
+        },
+        error: (error, stackTrace) {
+          Fluttertoast.showToast(msg: 'Error: $error');
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+      );
+    });
 
-    if (attendanceState is AttendanceSuccessState) {
-      attended = attendanceState.data;
-    }
+    ref.listen<AsyncValue<List<dynamic>>>(examsDetailsProvider(widget.examId), (previous, next) {
+      next.when(
+        data: (students) async {
+          if(students.isEmpty){
+            Fluttertoast.showToast(msg:'Please select the correct range');
+          }else{
+            allStudent = students;
+            Fluttertoast.showToast(msg:'Synced');
+          }
+          print('The students list is $students');
+
+        },
+        error: (error, stackTrace) {
+          Fluttertoast.showToast(msg: 'Error: $error');
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+      );
+    });
 
     return SafeArea(
       child: Scaffold(
@@ -90,8 +161,9 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
           backgroundColor: const Color.fromARGB(255, 101, 123, 120),
           // backgroundColor: ColorConst.backgroundColor,
           actions: [
-            add(context, _formKey, attendanceController, attended, widget.day,
-                widget.courseName),
+            // add(context, _formKey, attendanceController, attended, widget.day,
+            //     widget.courseName),
+            IconButton(onPressed: showRangeDialog, icon: const Icon(Icons.download))
           ],
         ),
         body: Stack(
@@ -113,15 +185,15 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
                         fontWeight: FontWeight.w500),
                   ),
                 ),
-                (attendanceState is AttendanceSuccessState)
-                    ? listOfAttendedStudents(
-                        attendanceState.data,
-                        attendanceController,
-                        attended,
-                        widget.day,
-                        widget.courseName)
-                    : listOfAttendedStudents(attended, attendanceController,
-                        attended, widget.day, widget.courseName),
+                // (attendanceState is AttendanceSuccessState)
+                //     ? listOfAttendedStudents(
+                //         attendanceState.data,
+                //         attendanceController,
+                //         attended,
+                //         widget.day,
+                //         widget.courseName)
+                //     : listOfAttendedStudents(attended, attendanceController,
+                //         attended, widget.day, widget.courseName),
                 CustomButton(
                     onPressed: () {
                       goToLiveFeedScreen(
@@ -350,67 +422,115 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
       },
     );
   }
+
+  void showRangeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return RangeDialog(
+          initialMinRoll: 1,   // Optional initial values (if needed)
+          initialMaxRoll: 100, // Optional initial values (if needed)
+          onConfirm: (int minRoll, int maxRoll) async{
+            // Handle the logic when the range is set
+          await ref.watch(examsDetailsProvider(widget.examId).notifier)
+                .getStudentsByRange(widget.examId,widget.semesterId, minRoll.toString(), maxRoll.toString());
+            print('Selected Range: $minRoll to $maxRoll');
+            // Save the range or fetch the student data here
+          },
+        );
+      },
+    );
+  }
+
+
 }
 
 
 
-//  Align(
-//                   alignment: Alignment.center,
-//                   child: Padding(
-//                     padding: const EdgeInsets.all(16.0),
-//                     // child:
-//                     // CustomButton(
-//                     //   onPressed: () async {
-//                     //     await goToLiveFeedScreen(
-//                     //         context,
-//                     //         detectController,
-//                     //         'Total Students',
-//                     //         attended,
-//                     //         widget.day,
-//                     //         family,
-//                     //         recognizeController);
-//                     //   },
-//                     //   buttonName: 'Attend',
-//                     //   icon: const Icon(Icons.add_a_photo),
-//                     // ),
-//                     child: Container(
-//                       decoration: BoxDecoration(
-//                         gradient: const LinearGradient(
-//                           colors: [
-//                             // ColorConst.darkButtonColor,
-//                             // ColorConst.lightButtonColor
-//                             Colors.blue, Colors.purple,
-//                           ],
-//                           begin: Alignment.topLeft,
-//                           end: Alignment.bottomRight,
-//                         ),
-//                         borderRadius: BorderRadius.circular(20),
-//                       ),
-//                       child: ElevatedButton(
-//                         style: ElevatedButton.styleFrom(
-//                           backgroundColor: Colors
-//                               .transparent, // Remove default button background
-//                           shadowColor: Colors.transparent, // Remove shadow
-//                           shape: RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(20),
-//                           ),
-//                         ),
-//                         onPressed: () {
-//                           goToLiveFeedScreen(
-//                               context,
-//                               detectController,
-//                               'Total Students',
-//                               attended,
-//                               widget.day,
-//                               family,
-//                               recognizeController);
-//                         },
-//                         child: const Text(
-//                           'Attend',
-//                           style: TextStyle(color: Colors.white),
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ),
+
+
+class RangeDialog extends StatefulWidget {
+  final Function(int minRoll, int maxRoll) onConfirm; // Function to call on OK
+
+  final int initialMinRoll;
+  final int initialMaxRoll;
+
+  const RangeDialog({
+    Key? key,
+    required this.onConfirm,
+    this.initialMinRoll = 0, // Optional initial values
+    this.initialMaxRoll = 0,
+  }) : super(key: key);
+
+  @override
+  _RangeDialogState createState() => _RangeDialogState();
+}
+
+class _RangeDialogState extends State<RangeDialog> {
+  late TextEditingController _minRollController;
+  late TextEditingController _maxRollController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize text controllers with the passed initial values
+    _minRollController = TextEditingController(text: widget.initialMinRoll.toString());
+    _maxRollController = TextEditingController(text: widget.initialMaxRoll.toString());
+  }
+
+  @override
+  void dispose() {
+    // Clean up controllers when widget is removed
+    _minRollController.dispose();
+    _maxRollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title:const Text('Set Range of Roll Numbers'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _minRollController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Minimum Roll Number',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextField(
+            controller: _maxRollController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Maximum Roll Number',
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(); // Dismiss dialog on Cancel
+          },
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            // Extract the entered roll numbers
+            int minRoll = int.parse(_minRollController.text);
+            int maxRoll = int.parse(_maxRollController.text);
+            widget.onConfirm(minRoll, maxRoll); // Call the function with entered values
+            Navigator.of(context).pop(); // Dismiss dialog on OK
+          },
+          child: const Text('OK'),
+        ),
+      ],
+    );
+  }
+}
 
