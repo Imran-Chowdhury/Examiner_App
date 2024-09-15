@@ -33,12 +33,14 @@ class RecognizeFaceNotifier extends StateNotifier<BaseState> {
       img.Image image,
       Interpreter interpreter,
       IsolateInterpreter isolateInterpreter,
-      String nameOfJsonFile) async {
+      String nameOfJsonFile,
+     List<dynamic> allStudent
+      ) async {
     state = const LoadingState();
     final stopwatch = Stopwatch()..start();
 
     final name = await useCase.recognizeFace(
-        image, interpreter, isolateInterpreter, nameOfJsonFile);
+        image, interpreter, isolateInterpreter, nameOfJsonFile,allStudent);
 
     stopwatch.stop();
     final double elapsedSeconds = stopwatch.elapsedMilliseconds / 1000.0;
@@ -57,12 +59,12 @@ class RecognizeFaceNotifier extends StateNotifier<BaseState> {
   }
 
   Future<String> liveFeedRecognize(img.Image image, Interpreter interpreter,
-      IsolateInterpreter isolateInterpreter, String nameOfJsonFile) async {
+      IsolateInterpreter isolateInterpreter, String nameOfJsonFile, List<dynamic> allStudent) async {
     state = const LoadingState();
     final stopwatch = Stopwatch()..start();
 
     final name = await useCase.recognizeFace(
-        image, interpreter, isolateInterpreter, nameOfJsonFile);
+        image, interpreter, isolateInterpreter, nameOfJsonFile, allStudent);
 
     stopwatch.stop();
     final double elapsedSeconds = stopwatch.elapsedMilliseconds / 1000.0;

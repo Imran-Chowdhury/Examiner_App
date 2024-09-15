@@ -57,7 +57,7 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> {
                 return const Center(
                   child: Text(
                     'No courses available. Add a course!',
-                    style: TextStyle(fontSize: 18),
+                    style: TextStyle(fontSize: 18,color: Colors.white70),
                   ),
                 );
               }
@@ -145,6 +145,13 @@ class _AddCourseDialogState extends ConsumerState<AddCourseDialog> {
         if (addCourseState is! AsyncLoading)
           TextButton(
             onPressed: () async {
+
+              Navigator.pop(context);
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
               final courseName = _courseNameController.text;
               if (courseName.isNotEmpty) {
                 await ref
@@ -158,6 +165,7 @@ class _AddCourseDialogState extends ConsumerState<AddCourseDialog> {
             },
             child: const Text('Done'),
           ),
+
       ],
     );
   }

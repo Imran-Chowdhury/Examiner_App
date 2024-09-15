@@ -29,7 +29,8 @@ class LiveFeedScreen extends ConsumerStatefulWidget {
     required this.nameOfScreen,
     required this.day,
     required this.attended,
-    required this.coursename,
+    required this.courseName,
+    required this.allStudent,
   });
 
   // final FaceDetectionNotifier detectionController;
@@ -44,7 +45,8 @@ class LiveFeedScreen extends ConsumerStatefulWidget {
   late String nameOfScreen;
   late String day;
   late List<dynamic>? attended;
-  late String coursename;
+  late String courseName;
+  late List<dynamic> allStudent;
 
   @override
   ConsumerState<LiveFeedScreen> createState() => _LiveFeedScreenState();
@@ -168,11 +170,14 @@ class _LiveFeedScreenState extends ConsumerState<LiveFeedScreen> {
               faceDetected[0],
               widget.interpreter,
               widget.isolateInterpreter,
-              widget.studentFile);
+              widget.studentFile,
+            widget.allStudent
+          );
 
           if (name.isNotEmpty) {
+            //navigate to confirmation screen
             attendancController.attendedList(
-                name, widget.day, widget.coursename, widget.attended);
+                name, widget.day, widget.courseName, widget.attended);
           }
 
           // if (widget.nameOfScreen == 'Home') {

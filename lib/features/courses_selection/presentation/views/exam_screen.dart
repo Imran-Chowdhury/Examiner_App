@@ -203,7 +203,9 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
                           attended,
                           widget.day,
                           family,
-                          recognizeController);
+                          recognizeController,
+                          allStudent
+                      );
                     },
                     buttonName: 'Attend',
                     icon: const Icon(Icons.add_a_photo))
@@ -271,6 +273,7 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
     String day,
     String family,
     RecognizeFaceNotifier recognizeController,
+    List<dynamic> allStudent
   ) async {
     List<CameraDescription> cameras = await availableCameras();
 
@@ -289,7 +292,8 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
           nameOfScreen: 'Course',
           day: day,
           attended: attended,
-          coursename: widget.courseName,
+          courseName: widget.courseName,
+          allStudent: allStudent,
           // livenessInterpreter: livenessInterpreter,
         ),
       ),

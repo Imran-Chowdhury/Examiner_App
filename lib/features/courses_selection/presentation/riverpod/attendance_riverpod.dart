@@ -26,11 +26,11 @@ class AttendanceNotifier extends StateNotifier<AttendanceState> {
         print('the attended students are $attended');
         state = AttendanceSuccessState(data: attended);
         //save the person in the main attendance sheet fro the particular day
-        await saveOrUpdateJsonInSharedPreferences(
-          attended,
-          day,
-          courseName,
-        );
+        // await saveOrUpdateJsonInSharedPreferences(
+        //   attended,
+        //   day,
+        //   courseName,
+        // );
       } else {
         state = AttendanceSuccessState(data: attended);
       }

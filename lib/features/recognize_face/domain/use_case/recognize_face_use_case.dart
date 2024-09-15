@@ -15,8 +15,8 @@ class RecognizeFaceUseCase {
   RecognizeFaceRepository repository;
 
   Future<String> recognizeFace(img.Image image, Interpreter interpreter,
-      IsolateInterpreter isolateInterpreter, String nameOfJsonFile) async {
+      IsolateInterpreter isolateInterpreter, String nameOfJsonFile, List<dynamic> allStudent) async {
     return await repository.recognizeFace(
-        image, interpreter, isolateInterpreter, nameOfJsonFile);
+        image, interpreter, isolateInterpreter, nameOfJsonFile, allStudent);
   }
 }

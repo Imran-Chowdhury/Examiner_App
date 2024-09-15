@@ -31,7 +31,9 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
       img.Image image,
       tf_lite.Interpreter interpreter,
       tf_lite.IsolateInterpreter isolateInterpreter,
-      String nameOfJsonFile) async {
+      String nameOfJsonFile,
+      List<dynamic> allStudent
+      ) async {
     final stopwatch = Stopwatch()..start();
 
     final inputShape = interpreter.getInputTensor(0).shape;
@@ -57,25 +59,26 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
     var finalOutput = List.from(output);
     print('The final output is $finalOutput');
 
-    // print('The final output is $finalOutput');
-    // print('The final output[0] is ${finalOutput[0]}');
 
-    Map<String, List<dynamic>> trainings =
-        await dataSource.readMapFromSharedPreferences(nameOfJsonFile);
+
+    // Map<String, List<dynamic>> trainings =
+    //     await dataSource.readMapFromSharedPreferences(nameOfJsonFile);
+
+
+    List<dynamic> trainings = allStudent;
 
     stopwatch.stop();
     final double elapsedSeconds = stopwatch.elapsedMilliseconds / 1000.0;
     print('Inference Time: $elapsedSeconds seconds');
-    await getStudent(1);
 
     //  return recognition(trainings, finalOutput, 15.5); //seemed better and the safest to go
     return recognition(trainings, finalOutput, 16.5); //seemed better
   }
 
   @override
-  String recognition(Map<String, List<dynamic>> trainings,
-      List<dynamic> finalOutput, double threshold) {
-    // Map<String, List<List<double>>> trainings, List<double> finalOutput, double threshold) {
+  // String recognition(Map<String, List<dynamic>> trainings, List<dynamic> finalOutput, double threshold) {
+
+  String recognition( List<dynamic> trainings, List<dynamic> finalOutput, double threshold) {
 
 
     final stopwatch = Stopwatch()..start();
@@ -85,27 +88,49 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
     String matchedName = '';
 
     try {
-      trainings.forEach((key, value) {
-        for (var innerList in value) {
-          // for (List<double> innerList in value) {
+      for(int i = 0; i<trainings.length;i++){
+        // print('The outer list is');
+        // print(trainings[i].containsKey('face_embeddings'));
+        List<dynamic> innerList = trainings[i]['face_embeddings'][0];
+        String name = trainings[i]['name'];
 
-          double distance = euclideanDistance(finalOutput, innerList);
-          // cosineDistance =  cosineSimilarity(finalOutput, innerList);
+        double distance = euclideanDistance(finalOutput, innerList);
+        // cosineDistance =  cosineSimilarity(finalOutput, innerList);
 
-          // print('the Cosine distance for $key  is $cosineDistance');
-          print('the Euclidean distance for $key  is $distance');
+        // print('the Cosine distance for $key  is $cosineDistance');
+        print('the Euclidean distance for $name  is $distance');
 
 
-          // For euclidean distance
-          if (distance <= threshold && distance < minDistance) {
-            minDistance = distance;
-            // cosDis = cosineDistance;
-            matchedName = key;
-          }
+        // For euclidean distance
+        if (distance <= threshold && distance < minDistance) {
+          minDistance = distance;
+          // cosDis = cosineDistance;
+          matchedName = name;
         }
-      });
-      // print('the person is $matchedName');
-      // print('the minDistance is $minDistance');
+      }
+
+
+      // try {
+      //   trainings.forEach((key, value) {
+      //     for (var innerList in value) {
+      //       // for (List<double> innerList in value) {
+      //
+      //       double distance = euclideanDistance(finalOutput, innerList);
+      //       // cosineDistance =  cosineSimilarity(finalOutput, innerList);
+      //
+      //       // print('the Cosine distance for $key  is $cosineDistance');
+      //       print('the Euclidean distance for $key  is $distance');
+      //
+      //
+      //       // For euclidean distance
+      //       if (distance <= threshold && distance < minDistance) {
+      //         minDistance = distance;
+      //         // cosDis = cosineDistance;
+      //         matchedName = key;
+      //       }
+      //     }
+      //   });
+
       if (matchedName == '') {
         print('Sad');
         print('No match!');
@@ -172,18 +197,6 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
     return dotProduct / (normA * normB);
   }
 
-  Future<void> getStudent(int roll) async {
-    final url = Uri.parse('http://192.168.0.106:8000/api/students/$roll/');
 
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      var studentData = json.decode(response.body);
-      print('The students is${response.body}');
-      print('Student Data: $studentData');
-    } else {
-      print('Failed to load student');
-    }
-  }
 
 }
