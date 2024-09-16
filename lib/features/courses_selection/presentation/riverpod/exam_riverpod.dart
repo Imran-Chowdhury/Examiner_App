@@ -94,3 +94,7 @@ class GetAStudentNotifier extends StateNotifier<AsyncValue<List<dynamic>>> {
     );
   }
 }
+
+
+
+//State Provider and Notifier For attendance

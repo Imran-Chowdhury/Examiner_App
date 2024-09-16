@@ -59,12 +59,15 @@ class ExamScreen extends ConsumerStatefulWidget {
 class _ExamScreenState extends ConsumerState<ExamScreen> {
   List<dynamic>? attended;
   late List<dynamic> allStudent;
+  List<dynamic>? cachedStudentList;
   @override
   void initState() {
-    // attended = mapToList(widget.attendedStudentsMap, widget.day);
+    Future.microtask(() => ref.read(attendanceProvider(widget.examId).notifier).getAttendedStudents(widget.examId));
     getStudentList(widget.examId);
     super.initState();
   }
+
+
 
 
 // Function to retrieve the list from shared preferences using the examId as the key
@@ -93,21 +96,16 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
     // Constants constant = Constants();
     String family = widget.examId;
     final detectController = ref.watch(faceDetectionProvider(family).notifier);
-    final recognizeController =
-        ref.watch(recognizefaceProvider(family).notifier);
-    //
+    final recognizeController = ref.watch(recognizefaceProvider(family).notifier);
+
     // final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-    //
-    // var attendanceState = ref.watch(attendanceProvider(family));
-    // AttendanceNotifier attendanceController =
-    //     ref.watch(attendanceProvider(family).notifier);
-    //
-    // // List<dynamic>? attended = mapToList(widget.attendedStudentsMap, widget.day);
-    // print('the attended list is $attended');
-    //
-    // if (attendanceState is AttendanceSuccessState) {
-    //   attended = attendanceState.data;
-    // }
+
+    var attendanceState = ref.watch(attendanceProvider(family));
+    AttendanceNotifier attendanceController =
+        ref.watch(attendanceProvider(family).notifier);
+
+
+
 
     ref.listen<AsyncValue<List<dynamic>>>(getAStudentProvider(widget.examId), (previous, next) {
       next.when(
@@ -151,18 +149,16 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Center(
-              child: Text(
-            widget.courseName,
-            style: const TextStyle(
-                color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
-          )),
+            child: Text(
+              widget.courseName,
+              style: const TextStyle(
+                  color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
+            ),
+          ),
           iconTheme: const IconThemeData(color: Colors.white),
           elevation: 20,
           backgroundColor: const Color.fromARGB(255, 101, 123, 120),
-          // backgroundColor: ColorConst.backgroundColor,
           actions: [
-            // add(context, _formKey, attendanceController, attended, widget.day,
-            //     widget.courseName),
             IconButton(onPressed: showRangeDialog, icon: const Icon(Icons.download))
           ],
         ),
@@ -170,51 +166,126 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
           children: [
             const BackgroudContainer(),
             Column(
-              // mainAxisAlignment: MainAxisAlignment.center,
-
               children: [
-                const SizedBox(
-                  height: 20,
-                ),
+                const SizedBox(height: 20),
                 Center(
                   child: Text(
-                    'Date -${widget.day}',
+                    'Date - ${widget.day}',
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.w500),
                   ),
                 ),
-                // (attendanceState is AttendanceSuccessState)
-                //     ? listOfAttendedStudents(
-                //         attendanceState.data,
-                //         attendanceController,
-                //         attended,
-                //         widget.day,
-                //         widget.courseName)
-                //     : listOfAttendedStudents(attended, attendanceController,
-                //         attended, widget.day, widget.courseName),
-                CustomButton(
-                    onPressed: () {
-                      goToLiveFeedScreen(
-                          context,
-                          detectController,
-                          'Total Students',
-                          attended,
-                          widget.day,
-                          family,
-                          recognizeController,
-                          allStudent
+                const SizedBox(height: 20),
+
+                // Attendance data, loading spinner or error message displayed here
+                Expanded(
+                  child: attendanceState.when(
+                    data: (studentList) {
+                      if (studentList!.isEmpty) {
+                        return const Center(
+                          child: Text(
+                            'Sync and Start Attending Students',
+                            style: TextStyle(color: Colors.white70, fontSize: 18),
+                          ),
+                        );
+                      }
+
+                      // Cache the successfully loaded student list
+                      cachedStudentList = studentList;
+
+                      return ListView.builder(
+                        itemCount: studentList.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            onLongPress: () {
+                              // You can add a dialog or any action here
+                            },
+                            onTap: () {
+                              // You can add navigation or other logic here
+                            },
+                            title: Text(
+                              studentList[index]['student'].toString(),
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                            subtitle: Text(
+                              studentList[index]['name'],
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                          );
+                        },
                       );
                     },
-                    buttonName: 'Attend',
-                    icon: const Icon(Icons.add_a_photo))
+                    loading: () => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    error: (error, stack) {
+                      // Show the previous cached data if available
+                      if (cachedStudentList != null && cachedStudentList!.isNotEmpty) {
+                        // Show a toast message for the error
+                        Fluttertoast.showToast(
+                          msg: "Error: $error",
+                          // toastLength: Toast.LENGTH_SHORT,
+                          // gravity: ToastGravity.BOTTOM,
+                          // backgroundColor: Colors.red,
+                          // textColor: Colors.white,
+                          // fontSize: 16.0,
+                        );
+
+                        return ListView.builder(
+                          itemCount: cachedStudentList!.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              title: Text(
+                                cachedStudentList![index]['student'].toString(),
+                                style: const TextStyle(color: Colors.white70),
+                              ),
+                              subtitle: Text(
+                                cachedStudentList![index]['name'],
+                                style: const TextStyle(color: Colors.white70),
+                              ),
+                            );
+                          },
+                        );
+                      } else {
+                        // If there's no cached data, show an empty state or message
+                        return const Center(
+                          child: Text(
+                            'No Data Available',
+                            style: TextStyle(color: Colors.white70, fontSize: 18),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                CustomButton(
+                  onPressed: () {
+                    goToLiveFeedScreen(
+                      context,
+                      detectController,
+                      'Total Students',
+                      attended,
+                      widget.day,
+                      family,
+                      recognizeController,
+                      allStudent,
+                    );
+                  },
+                  buttonName: 'Attend',
+                  icon: const Icon(Icons.add_a_photo),
+                ),
               ],
             ),
           ],
         ),
       ),
     );
+
   }
 
   Widget listOfAttendedStudents(
@@ -282,6 +353,7 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
       // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
       MaterialPageRoute(
         builder: (context) => LiveFeedScreen(
+          examId: widget.examId,
           isolateInterpreter: widget.isolateInterpreter,
           // detectionController: detectController,
           faceDetector: widget.faceDetector,
@@ -376,8 +448,8 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
                       // Validation passed, proceed with saving
 
                       // Perform save operation or any other logic here
-                      attendanceController.manualAttend(attended,
-                          nameController.text.trim(), courseName, day);
+                      // attendanceController.manualAttend(attended,
+                      //     nameController.text.trim(), courseName, day);
 
                       Navigator.of(context).pop();
                     }
@@ -416,8 +488,8 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
               child: const Text('Delete'),
               onPressed: () {
                 // Perform delete operation here
-                attendanceController.deleteName(
-                    attended, name, widget.courseName, day);
+                // attendanceController.deleteName(
+                //     attended, name, widget.courseName, day);
                 Navigator.of(context).pop();
               },
             ),

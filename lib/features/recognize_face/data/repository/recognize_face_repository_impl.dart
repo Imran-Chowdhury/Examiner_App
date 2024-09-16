@@ -27,7 +27,7 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
   //     Interpreter interpreter,
   //     IsolateInterpreter isolateInterpreter,
   //     String nameOfJsonFile)
-  Future<String> recognizeFace(
+  Future<Map<String,dynamic>> recognizeFace(
       img.Image image,
       tf_lite.Interpreter interpreter,
       tf_lite.IsolateInterpreter isolateInterpreter,
@@ -78,7 +78,7 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
   @override
   // String recognition(Map<String, List<dynamic>> trainings, List<dynamic> finalOutput, double threshold) {
 
-  String recognition( List<dynamic> trainings, List<dynamic> finalOutput, double threshold) {
+  Map<String,dynamic> recognition( List<dynamic> trainings, List<dynamic> finalOutput, double threshold) {
 
 
     final stopwatch = Stopwatch()..start();
@@ -86,11 +86,12 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
     double minDistance = double.infinity;
 
     String matchedName = '';
+    Map<String,dynamic> studentData = {};
 
     try {
       for(int i = 0; i<trainings.length;i++){
-        // print('The outer list is');
-        // print(trainings[i].containsKey('face_embeddings'));
+
+
         List<dynamic> innerList = trainings[i]['face_embeddings'][0];
         String name = trainings[i]['name'];
 
@@ -103,6 +104,7 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
 
         // For euclidean distance
         if (distance <= threshold && distance < minDistance) {
+          studentData = trainings[i];
           minDistance = distance;
           // cosDis = cosineDistance;
           matchedName = name;
@@ -110,32 +112,12 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
       }
 
 
-      // try {
-      //   trainings.forEach((key, value) {
-      //     for (var innerList in value) {
-      //       // for (List<double> innerList in value) {
-      //
-      //       double distance = euclideanDistance(finalOutput, innerList);
-      //       // cosineDistance =  cosineSimilarity(finalOutput, innerList);
-      //
-      //       // print('the Cosine distance for $key  is $cosineDistance');
-      //       print('the Euclidean distance for $key  is $distance');
-      //
-      //
-      //       // For euclidean distance
-      //       if (distance <= threshold && distance < minDistance) {
-      //         minDistance = distance;
-      //         // cosDis = cosineDistance;
-      //         matchedName = key;
-      //       }
-      //     }
-      //   });
 
       if (matchedName == '') {
         print('Sad');
         print('No match!');
 
-        return '';
+        return {};
       } else {
         print('Yes!');
         print('the person is $matchedName');
@@ -147,7 +129,9 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
       stopwatch.stop();
       final double elapsedSeconds = stopwatch.elapsedMilliseconds / 1000.0;
       print('recognize Time: $elapsedSeconds seconds');
-      return matchedName;
+
+      print('the studentData is $studentData');
+      return studentData ;
 
       // return matchedName + minDistance.toString();
     } catch (e) {

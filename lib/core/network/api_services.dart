@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 class ApiService {
   // String baseUrl =  'http://192.168.167.139:8000/'; //mobile
   // String baseUrl =  'http://192.168.0.106:8000/'; //wifi
-  String baseUrl =  'http://192.168.0.105:8000/'; //wifi
+  String baseUrl =  'http://192.168.0.100:8000/'; //wifi
 
 
 
@@ -205,6 +205,28 @@ class ApiService {
 
 
 
+
+  Future<Either<Map<String, dynamic>, Map<String, dynamic>>> markAttendance(String examId, Map<String,dynamic> studentData) async {
+    String url = '${baseUrl}api/exams/$examId/mark_attendance/';
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        // Add token if required
+      },
+      body: jsonEncode(studentData),
+    );
+
+    if (response.statusCode == 201) {
+      print('Student attended');
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      return Right(responseBody);
+    } else {
+      print('Failed to attend student: ${response.body}');
+      final Map<String, dynamic> errorBody = jsonDecode(response.body);
+      return Left(errorBody);
+    }
+  }
 
 
 

@@ -29,7 +29,7 @@ class RecognizeFaceNotifier extends StateNotifier<BaseState> {
   Ref ref;
   RecognizeFaceUseCase useCase;
 
-  Future<String> pickImagesAndRecognize(
+  Future<Map<String,dynamic>> pickImagesAndRecognize(
       img.Image image,
       Interpreter interpreter,
       IsolateInterpreter isolateInterpreter,
@@ -39,7 +39,7 @@ class RecognizeFaceNotifier extends StateNotifier<BaseState> {
     state = const LoadingState();
     final stopwatch = Stopwatch()..start();
 
-    final name = await useCase.recognizeFace(
+    final studentData = await useCase.recognizeFace(
         image, interpreter, isolateInterpreter, nameOfJsonFile,allStudent);
 
     stopwatch.stop();
@@ -48,38 +48,38 @@ class RecognizeFaceNotifier extends StateNotifier<BaseState> {
     // Print the elapsed time in seconds
     print('The Recognition Execution time: $elapsedSeconds seconds');
 
-    if (name.isNotEmpty) {
+    if (studentData.isNotEmpty) {
       // print('the name is $name');
-      state = SuccessState(name: name);
+      state = SuccessState(name: studentData['name']);
     } else {
       // print('No match!');
       state = const ErrorState('No match!');
     }
-    return name;
+    return studentData;
   }
 
-  Future<String> liveFeedRecognize(img.Image image, Interpreter interpreter,
-      IsolateInterpreter isolateInterpreter, String nameOfJsonFile, List<dynamic> allStudent) async {
-    state = const LoadingState();
-    final stopwatch = Stopwatch()..start();
-
-    final name = await useCase.recognizeFace(
-        image, interpreter, isolateInterpreter, nameOfJsonFile, allStudent);
-
-    stopwatch.stop();
-    final double elapsedSeconds = stopwatch.elapsedMilliseconds / 1000.0;
-
-    // Print the elapsed time in seconds
-    print('The Recognition Execution time: $elapsedSeconds seconds');
-
-    if (name.isNotEmpty) {
-      // print('the name is $name');
-      state = const SuccessState();
-    } else {
-      // print('No match!');
-      state = const ErrorState('No match!');
-    }
-
-    return name;
-  }
+  // Future<String> liveFeedRecognize(img.Image image, Interpreter interpreter,
+  //     IsolateInterpreter isolateInterpreter, String nameOfJsonFile, List<dynamic> allStudent) async {
+  //   state = const LoadingState();
+  //   final stopwatch = Stopwatch()..start();
+  //
+  //   final studentData = await useCase.recognizeFace(
+  //       image, interpreter, isolateInterpreter, nameOfJsonFile, allStudent);
+  //
+  //   stopwatch.stop();
+  //   final double elapsedSeconds = stopwatch.elapsedMilliseconds / 1000.0;
+  //
+  //   // Print the elapsed time in seconds
+  //   print('The Recognition Execution time: $elapsedSeconds seconds');
+  //
+  //   if (studentData.isNotEmpty) {
+  //     // print('the name is $name');
+  //     state = const SuccessState();
+  //   } else {
+  //     // print('No match!');
+  //     state = const ErrorState('No match!');
+  //   }
+  //
+  //   return studentData;
+  // }
 }
