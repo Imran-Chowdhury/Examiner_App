@@ -65,7 +65,32 @@ class AttendanceNotifier extends StateNotifier<AsyncValue<List<dynamic>?>> {
       },
     );
   }
+
+  Future<void> removeStudent(List<dynamic>? attendedList, String rollNumber, String examId) async {
+    final result = await repository.removeStudent(attendedList, rollNumber, examId);
+
+    result.fold(
+          (failure) => state = AsyncValue.error(failure['error'] ?? 'Failed To Delete Student', StackTrace.current),
+          (success) async {
+
+        if (attendedList != null && attendedList.isNotEmpty) {
+          // Remove the map where the 'roll_number' key matches the given rollNumber
+          attendedList.removeWhere((map) => map['student'].toString() == rollNumber);
+        }
+
+        print('The list after deletion is $attendedList');
+
+        // Update the state with the modified list
+        state = AsyncValue.data(attendedList);
+      },
+    );
+  }
+
+
+
 }
+
+
 
 //   Future<void> manualAttend(List<dynamic>? attended, String name,
 //       String courseName, String day) async {

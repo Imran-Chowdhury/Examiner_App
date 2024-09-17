@@ -39,4 +39,10 @@ class ExamRepositoryImpl implements ExamRepository{
   Future<Either<Map<String, dynamic>, Map<String, dynamic>>> markAttendance(String examId, Map<String, dynamic> studentData)async {
     return await apiService.markAttendance(examId, studentData);
   }
+
+  @override
+  Future<Either<Map<String, dynamic>, Map<String, dynamic>>> removeStudent(List? studentList, String rollNumber, String examId)async {
+
+   return await apiService.removeStudent(studentList, rollNumber, examId);
+  }
 }

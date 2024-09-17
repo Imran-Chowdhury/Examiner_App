@@ -230,4 +230,28 @@ class ApiService {
 
 
 
+  Future<Either<Map<String, dynamic>, Map<String, dynamic>>> removeStudent(List<dynamic>? studentList, String rollNumber, String examId) async {
+    String url = '${baseUrl}api/exams/$examId/student/$rollNumber/delete/';
+    final response = await http.delete(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        // Add token if required
+      },
+      // body: jsonEncode(studentData),
+    );
+
+    if (response.statusCode == 200) {
+      print('Student deleted');
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      return Right(responseBody);
+    } else {
+      print('Failed to delete student: ${response.body}');
+      final Map<String, dynamic> errorBody = jsonDecode(response.body);
+      return Left(errorBody);
+    }
+  }
+
+
+
 }
