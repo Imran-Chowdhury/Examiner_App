@@ -29,7 +29,7 @@ class LiveFeedScreen extends ConsumerStatefulWidget {
     required this.family,
     required this.nameOfScreen,
     required this.day,
-    required this.attended,
+
     required this.courseName,
     required this.examId,
     required this.allStudent,
@@ -47,7 +47,7 @@ class LiveFeedScreen extends ConsumerStatefulWidget {
   late String family;
   late String nameOfScreen;
   late String day;
-  late List<dynamic>? attended;
+
   late String courseName;
   late List<dynamic> allStudent;
 

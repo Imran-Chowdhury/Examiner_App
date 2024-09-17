@@ -15,7 +15,7 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import '../../../../core/utils/background_widget.dart';
 import '../../../../core/utils/courseButton.dart';
 import '../../../train_face/presentation/views/home_screen.dart';
-import 'course_screen.dart';
+
 import 'course_selection_screen.dart';
 
 // class CourseSelectionScreen extends ConsumerStatefulWidget {

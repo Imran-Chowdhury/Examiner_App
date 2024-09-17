@@ -33,12 +33,7 @@ class _ConfirmScreenState extends ConsumerState<ConfirmScreen> {
   @override
   Widget build(BuildContext context) {
 
-    final String examId;
-    final String originalName;
-    final String originalRollNumber;
-    // final String originalSession;
-    final String originalSemester;
-    final List<int> uint8list;
+
 
 
     // Convert List<int> to Uint8List for Image.memory

@@ -22,7 +22,7 @@ class ExamDetailsNotifier extends StateNotifier<AsyncValue<List<dynamic>>> {
     final result = await repository.getStudentsByRange(semesterId, startRoll, endRoll);
 
     result.fold(
-          (failure) => state = AsyncValue.error(failure['error'] ?? 'Failed to load exams', StackTrace.current),
+          (failure) => state = AsyncValue.error(failure['error'] ?? 'Failed to load Range', StackTrace.current),
           (students) async {
             print(students);
 
@@ -47,14 +47,27 @@ class ExamDetailsNotifier extends StateNotifier<AsyncValue<List<dynamic>>> {
 }
 
 
-final getAStudentProvider = StateNotifierProvider.family<ExamDetailsNotifier,  AsyncValue<List<dynamic>>, String>(
-      (ref, examId) => ExamDetailsNotifier(ref.watch(examRepositoryProvider)),
+final getAStudentProvider = StateNotifierProvider.family<GetAStudentNotifier,  AsyncValue<List<dynamic>?>, String>(
+      (ref, examId) => GetAStudentNotifier(
+          ref.watch(examRepositoryProvider),
+        ref,
+        // examId,
+      ),
 );
 
-class GetAStudentNotifier extends StateNotifier<AsyncValue<List<dynamic>>> {
+class GetAStudentNotifier extends StateNotifier<AsyncValue<List<dynamic>?>> {
   final ExamRepository repository;
+  Ref ref;
+  // String examId;
 
-  GetAStudentNotifier(this.repository) : super(const AsyncData([]));
+  GetAStudentNotifier(this.repository, this.ref) : super(const AsyncData([]));
+  // GetAStudentNotifier(this.repository, this.ref, this.examId) : super(AsyncData(ref.read(examsDetailsProvider(examId)).value));
+
+
+  void setTheState(List<dynamic>? studentList){
+    state = AsyncData(studentList);
+  }
+
 
   Future<void> getAStudent(String examId,String rollNumber) async{
     List<dynamic> allStudents = [];
@@ -84,6 +97,7 @@ class GetAStudentNotifier extends StateNotifier<AsyncValue<List<dynamic>>> {
           }else{
             String encodedStudentList = jsonEncode([student]);
             await prefs.setString(examId, encodedStudentList);
+            allStudents = [student];
 
           }
         }

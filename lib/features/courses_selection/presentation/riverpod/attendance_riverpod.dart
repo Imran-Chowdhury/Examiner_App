@@ -32,6 +32,8 @@ class AttendanceNotifier extends StateNotifier<AsyncValue<List<dynamic>?>> {
       state = AsyncValue.error(
           failure['error'] ?? 'Failed To Get Attended List',
           StackTrace.current),
+
+
           (students) async {
         state = AsyncValue.data(students);
       },

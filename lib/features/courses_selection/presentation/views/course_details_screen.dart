@@ -95,7 +95,7 @@ class _CourseDetailsScreenState extends ConsumerState<CourseDetailsScreen> {
                     context,
                     // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
                     MaterialPageRoute(
-                      builder: (context) => ExamScreen(
+                      builder: (context) => StudentScreen(
                         day: exams[index]['exam_date'],
                         // attendedStudentsMap: attendanceSheet,
                         courseName: widget.courseName,
