@@ -40,6 +40,7 @@ class StudentScreen extends ConsumerStatefulWidget {
     required this.interpreter,
     required this.examId,
     required this.semesterId,
+    required this.room,
   });
 
   // Map<String, List<dynamic>> attendedStudentsMap;
@@ -52,6 +53,7 @@ class StudentScreen extends ConsumerStatefulWidget {
   final tf_lite.IsolateInterpreter isolateInterpreter;
   final String examId;
   final String semesterId;
+  String room;
 
   // List<String> attendedStudentsList;
 }
@@ -65,7 +67,7 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
   void initState() {
     Future.microtask(() => ref.read(attendanceProvider(widget.examId).notifier).getAttendedStudents(widget.examId));
     getStudentList(widget.examId);
-    printAllSharedPreferences();
+    // printAllSharedPreferences();
     super.initState();
   }
 
@@ -96,7 +98,7 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
     }else{
       // Decode the JSON string back to a list of students
       allStudent = jsonDecode(encodedStudentList);
-      print(allStudent);
+
     }
 
 
@@ -156,7 +158,7 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
             allStudent = students;
             Fluttertoast.showToast(msg:'Synced');
           }
-          print('The students list is $students');
+
 
         },
         error: (error, stackTrace) {
@@ -181,253 +183,112 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
      );
    }
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Center(
-            child: Text(
-              widget.courseName,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold),
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Center(
+          child: Text(
+            widget.courseName,
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 25,
+                fontWeight: FontWeight.bold),
           ),
-          iconTheme: const IconThemeData(color: Colors.white),
-          elevation: 20,
-          backgroundColor: const Color.fromARGB(255, 101, 123, 120),
-          actions: [
-            IconButton(onPressed: showRangeDialog, icon: const Icon(Icons.download)),
-            IconButton(onPressed: () {
-              displayAllStudents(allStudent);
-            }, icon: const Icon(Icons.list_alt_outlined)),
-          ],
         ),
-        body: Stack(
-          children: [
-            const BackgroudContainer(),
-            Column(
-              children: [
-                const SizedBox(height: 20),
-                Center(
-                  child: Text(
-                    'Date - ${widget.day}',
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500),
-                  ),
+        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 20,
+        backgroundColor: const Color.fromARGB(255, 101, 123, 120),
+        actions: [
+          IconButton(onPressed: showRangeDialog, icon: const Icon(Icons.download)),
+          IconButton(onPressed: () {
+            displayAllStudents(allStudent);
+          }, icon: const Icon(Icons.list_alt_outlined)),
+        ],
+      ),
+      body: Stack(
+        children: [
+          const BackgroundContainer(),
+          Column(
+            children: [
+              const SizedBox(height: 20),
+              Center(
+                child: Text(
+                  'Date - ${widget.day}',
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500),
                 ),
-                const SizedBox(height: 20),
-
-                // Wrapping the `Expanded` widget properly in the `Column` structure
-                Expanded(
-                  child: attendanceState.when(
-                    data: (studentList) {
-                      if (studentList!.isEmpty) {
-                        return const Center(
-                          child: Text(
-                            'Sync and Start Attending Students',
-                            style: TextStyle(color: Colors.white70, fontSize: 18),
-                          ),
-                        );
-                      }
-
-                      // Cache the successfully loaded student list
-                      cachedStudentList = studentList;
-
-                      // Display the list of attended students
-                      return listOfAttendedStudents(studentList, attendanceController);
-                    },
-                    loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (error, stack) {
-                      if (cachedStudentList != null && cachedStudentList!.isNotEmpty) {
-                        Fluttertoast.showToast(msg: "Error: $error");
-                        return listOfAttendedStudents(cachedStudentList, attendanceController);
-                      } else {
-                        return const Center(
-                          child: Text(
-                            'No Data Available',
-                            style: TextStyle(color: Colors.white70, fontSize: 18),
-                          ),
-                        );
-                      }
-                    },
-                  ),
+              ),
+              Center(
+                child: Text(
+                  'Room: ${widget.room}',
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500),
                 ),
+              ),
+              const SizedBox(height: 20),
 
-                const SizedBox(height: 20),
+              // Wrapping the `Expanded` widget properly in the `Column` structure
+              Expanded(
+                child: attendanceState.when(
+                  data: (studentList) {
+                    if (studentList!.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'Sync and Start Attending Students',
+                          style: TextStyle(color: Colors.white70, fontSize: 18),
+                        ),
+                      );
+                    }
 
-                CustomButton(
-                  onPressed: () {
-                    goToLiveFeedScreen(
-                      context,
-                      detectController,
-                      'Total Students',
-                      attended,
-                      widget.day,
-                      family,
-                      recognizeController,
-                      allStudent,
-                    );
+                    // Cache the successfully loaded student list
+                    cachedStudentList = studentList;
+
+                    // Display the list of attended students
+                    return listOfAttendedStudents(studentList, attendanceController);
                   },
-                  buttonName: 'Attend',
-                  icon: const Icon(Icons.add_a_photo),
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (error, stack) {
+                    if (cachedStudentList != null && cachedStudentList!.isNotEmpty) {
+                      Fluttertoast.showToast(msg: "Error: $error");
+                      return listOfAttendedStudents(cachedStudentList, attendanceController);
+                    } else {
+                      return const Center(
+                        child: Text(
+                          'No Data Available',
+                          style: TextStyle(color: Colors.white70, fontSize: 18),
+                        ),
+                      );
+                    }
+                  },
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+
+              const SizedBox(height: 20),
+
+              CustomButton(
+                onPressed: () {
+                  goToLiveFeedScreen(
+                    context,
+                    detectController,
+                    'Total Students',
+                    attended,
+                    widget.day,
+                    family,
+                    recognizeController,
+                    allStudent,
+                  );
+                },
+                buttonName: '',
+                icon: const Icon(Icons.add_a_photo),
+              ),
+            ],
+          ),
+        ],
       ),
     );
-
-
-    //   SafeArea(
-    //   child: Scaffold(
-    //     appBar: AppBar(
-    //       title: Center(
-    //         child: Text(
-    //           widget.courseName,
-    //           style: const TextStyle(
-    //               color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
-    //         ),
-    //       ),
-    //       iconTheme: const IconThemeData(color: Colors.white),
-    //       elevation: 20,
-    //       backgroundColor: const Color.fromARGB(255, 101, 123, 120),
-    //       actions: [
-    //         IconButton(onPressed: showRangeDialog, icon: const Icon(Icons.download)),
-    //         IconButton(onPressed: (){
-    //           displayAllStudents(allStudent);} , icon: const Icon(Icons.list_alt_outlined))
-    //       ],
-    //     ),
-    //     body: Stack(
-    //       children: [
-    //         const BackgroudContainer(),
-    //         Column(
-    //           children: [
-    //             const SizedBox(height: 20),
-    //             Center(
-    //               child: Text(
-    //                 'Date - ${widget.day}',
-    //                 style: const TextStyle(
-    //                     color: Colors.white,
-    //                     fontSize: 20,
-    //                     fontWeight: FontWeight.w500),
-    //               ),
-    //             ),
-    //             const SizedBox(height: 20),
-    //
-    //             // Attendance data, loading spinner or error message displayed here
-    //             Expanded(
-    //               child: attendanceState.when(
-    //                 data: (studentList) {
-    //                   if (studentList!.isEmpty) {
-    //                     return const Center(
-    //                       child: Text(
-    //                         'Sync and Start Attending Students',
-    //                         style: TextStyle(color: Colors.white70, fontSize: 18),
-    //                       ),
-    //                     );
-    //                   }
-    //
-    //                   // Cache the successfully loaded student list
-    //                   cachedStudentList = studentList;
-    //
-    //                   // return ListView.builder(
-    //                   //   itemCount: studentList.length,
-    //                   //   itemBuilder: (context, index) {
-    //                   //     return ListTile(
-    //                   //       onLongPress: () {
-    //                   //         // You can add a dialog or any action here
-    //                   //       },
-    //                   //       onTap: () {
-    //                   //         // You can add navigation or other logic here
-    //                   //       },
-    //                   //       title: Text(
-    //                   //         studentList[index]['student'].toString(),
-    //                   //         style: const TextStyle(color: Colors.white70),
-    //                   //       ),
-    //                   //       subtitle: Text(
-    //                   //         studentList[index]['name'],
-    //                   //         style: const TextStyle(color: Colors.white70),
-    //                   //       ),
-    //                   //     );
-    //                   //   },
-    //                   // );
-    //
-    //                   return listOfAttendedStudents(studentList,attendanceController);
-    //                 },
-    //                 loading: () => const Center(
-    //                   child: CircularProgressIndicator(),
-    //                 ),
-    //                 error: (error, stack) {
-    //                   // Show the previous cached data if available
-    //                   if (cachedStudentList != null && cachedStudentList!.isNotEmpty) {
-    //                     // Show a toast message for the error
-    //                     Fluttertoast.showToast(
-    //                       msg: "Error: $error",
-    //
-    //                     );
-    //                     return listOfAttendedStudents(cachedStudentList,attendanceController);
-    //                     // return ListView.builder(
-    //                     //   itemCount: cachedStudentList!.length,
-    //                     //   itemBuilder: (context, index) {
-    //                     //     return ListTile(
-    //                     //       title: Text(
-    //                     //         cachedStudentList![index]['student'].toString(),
-    //                     //         style: const TextStyle(color: Colors.white70),
-    //                     //       ),
-    //                     //       subtitle: Text(
-    //                     //         cachedStudentList![index]['name'],
-    //                     //         style: const TextStyle(color: Colors.white70),
-    //                     //       ),
-    //                     //     );
-    //                     //   },
-    //                     // );
-    //                   } else {
-    //                     // If there's no cached data, show an empty state or message
-    //                     return const Center(
-    //                       child: Text(
-    //                         'No Data Available',
-    //                         style: TextStyle(color: Colors.white70, fontSize: 18),
-    //                       ),
-    //                     );
-    //                   }
-    //                 },
-    //               ),
-    //             ),
-    //
-    //             const SizedBox(height: 20),
-    //             // Check for loading states of student data and exam details
-    //             // if (studentState is AsyncLoading || examDetailsState is AsyncLoading)
-    //             //   const Center(child: CircularProgressIndicator()),
-    //
-    //
-    //
-    //             CustomButton(
-    //               onPressed: () {
-    //                 goToLiveFeedScreen(
-    //                   context,
-    //                   detectController,
-    //                   'Total Students',
-    //                   attended,
-    //                   widget.day,
-    //                   family,
-    //                   recognizeController,
-    //                   allStudent,
-    //                 );
-    //               },
-    //               buttonName: 'Attend',
-    //               icon: const Icon(Icons.add_a_photo),
-    //             ),
-    //           ],
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // );
-
   }
 
   Widget listOfAttendedStudents(
@@ -442,7 +303,7 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
       itemBuilder: (context, index) {
         String roll =  attendedList![index]['student'].toString();
         String name = attendedList[index]['name'];
-        print('The attended students are $attendedList');
+
         return GestureDetector(
           onLongPress: () {
             showDeleteOption(context, name,roll,widget.examId, attendanceController, attendedList,);
@@ -634,7 +495,7 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
             // Handle the logic when the range is set
           await ref.watch(examsDetailsProvider(widget.examId).notifier)
                 .getStudentsByRange(widget.examId,widget.semesterId, minRoll.toString(), maxRoll.toString());
-            print('Selected Range: $minRoll to $maxRoll');
+
             // Save the range or fetch the student data here
           },
         );

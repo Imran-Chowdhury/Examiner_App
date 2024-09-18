@@ -101,7 +101,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         backgroundColor: const Color(0xFF3a3b45),
         body: Stack(
           children: [
-            const BackgroudContainer(),
+            const BackgroundContainer(),
             SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,

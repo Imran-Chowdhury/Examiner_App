@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/constants/constants.dart';
+import '../../../../core/utils/background_widget.dart';
 import '../riverpod/course_details_riverpod.dart';
 import 'exam_screen.dart';
 
@@ -39,7 +41,7 @@ class _CourseDetailsScreenState extends ConsumerState<CourseDetailsScreen> {
   void initState() {
     super.initState();
     // Fetch the exams as soon as the screen is initialized
-    print('The course id is ${widget.courseId}');
+
     Future.microtask(() => ref.read(examsProvider(widget.courseId).notifier).getExams(widget.courseId));
   }
 
@@ -65,81 +67,102 @@ class _CourseDetailsScreenState extends ConsumerState<CourseDetailsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Exams for Course ${widget.courseId}'),
+        title: Text(
+          widget.courseName,
+          style: const TextStyle(
+              color: Colors.white,
+              fontSize: 25,
+              fontWeight: FontWeight.bold),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 20,
+        backgroundColor: const Color.fromARGB(255, 101, 123, 120),
       ),
-      body: examsAsync.when(
+      body: Stack(
+        children: [
+          const BackgroundContainer(),
+          examsAsync.when(
 
-        data: (exams) {
-          if (exams == null || exams.isEmpty) {
-            return const Center(
-              child: Text(
-                'No exams available. Add a new exam!',
-                style: TextStyle(
-                  color: Colors.white70,
-                    fontSize: 18),
-              ),
-            );
-          }
-
-          return ListView.builder(
-            itemCount: exams.length,
-            itemBuilder: (context, index) {
-              print(exams);
-              return ListTile(
-                onLongPress: (){
-                  _showDeleteDialog(context, exams[index]['id'].toString(), widget.courseId);
-
-                },
-                onTap: (){
-                  Navigator.push(
-                    context,
-                    // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
-                    MaterialPageRoute(
-                      builder: (context) => StudentScreen(
-                        day: exams[index]['exam_date'],
-                        // attendedStudentsMap: attendanceSheet,
-                        courseName: widget.courseName,
-                        interpreter: widget.interpreter,
-                        isolateInterpreter: widget.isolateInterpreter,
-                        cameras: widget.cameras,
-                        faceDetector: widget.faceDetector,
-                        semesterId: widget.semesterId,
-                        examId: exams[index]['id'].toString(),
-
-                      ),
-                    ),
-                  );
-                },
-                title: Text(
-                    'Exam Date: ${exams[index]['exam_date']}',
-                        style: const TextStyle(color: Colors.white70),
-                ),
-                subtitle: Text(
-                  'Room: ${exams[index]['room']}',
-                  style: const TextStyle(color: Colors.white70),
+          data: (exams) {
+            if (exams == null || exams.isEmpty) {
+              return const Center(
+                child: Text(
+                  'No exams available. Add a new exam!',
+                  style: TextStyle(
+                    color: Colors.white70,
+                      fontSize: 18),
                 ),
               );
-            },
-          );
+            }
 
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
+            return listOfExams(exams);
+
+            // return ListView.builder(
+            //   itemCount: exams.length,
+            //   itemBuilder: (context, index) {
+            //     print(exams);
+            //     return ListTile(
+            //       onLongPress: (){
+            //         _showDeleteDialog(context, exams[index]['id'].toString(), widget.courseId);
+            //
+            //       },
+            //       onTap: (){
+            //         Navigator.push(
+            //           context,
+            //           // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
+            //           MaterialPageRoute(
+            //             builder: (context) => StudentScreen(
+            //               day: exams[index]['exam_date'],
+            //               // attendedStudentsMap: attendanceSheet,
+            //               courseName: widget.courseName,
+            //               interpreter: widget.interpreter,
+            //               isolateInterpreter: widget.isolateInterpreter,
+            //               cameras: widget.cameras,
+            //               faceDetector: widget.faceDetector,
+            //               semesterId: widget.semesterId,
+            //               examId: exams[index]['id'].toString(),
+            //
+            //             ),
+            //           ),
+            //         );
+            //       },
+            //       title: Text(
+            //           'Exam Date: ${exams[index]['exam_date']}',
+            //               style: const TextStyle(color: Colors.white70),
+            //       ),
+            //       subtitle: Text(
+            //         'Room: ${exams[index]['room']}',
+            //         style: const TextStyle(color: Colors.white70),
+            //       ),
+            //     );
+            //   },
+            // );
+
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(child: Text('Error: $error')),
+        ),
+      ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) => AddExamDialog(
-              courseId: widget.courseId,
-              semesterId: widget.semesterId,
-            ),
-          );
-        },
-        child: const Icon(Icons.add),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(right: 30, bottom: 50),
+        child: FloatingActionButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => AddExamDialog(
+                courseId: widget.courseId,
+                semesterId: widget.semesterId,
+              ),
+            );
+          },
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }
+
+
   void _showDeleteDialog(BuildContext context, String examId, String courseId) {
     showDialog(
       context: context,
@@ -166,7 +189,95 @@ class _CourseDetailsScreenState extends ConsumerState<CourseDetailsScreen> {
       ),
     );
   }
+
+
+
+  Widget listOfExams(List<dynamic>? exams) {
+    return ListView.builder(
+      itemCount: exams?.length,
+      itemBuilder: (context, index) {
+
+        return GestureDetector(
+          onLongPress: (){
+            _showDeleteDialog(context, exams[index]['id'].toString(), widget.courseId);
+
+          },
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => StudentScreen(
+                  day: exams[index]['exam_date'],
+                  // attendedStudentsMap: attendanceSheet,
+                  courseName: widget.courseName,
+                  interpreter: widget.interpreter,
+                  isolateInterpreter: widget.isolateInterpreter,
+                  cameras: widget.cameras,
+                  faceDetector: widget.faceDetector,
+                  semesterId: widget.semesterId,
+                  examId: exams[index]['id'].toString(),
+                  room:exams[index]['room'].toString(),
+
+                ),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Container(
+              height: 70,
+              width: 200,
+              decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  gradient: LinearGradient(colors: [
+                    ColorConst.lightButtonColor,
+                    ColorConst.darkButtonColor
+                  ])),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                  children: [
+
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Exam Date: ${exams![index]['exam_date'].toString()}',
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+
+                        Text(
+                          'Room: ${exams[index]['room'].toString()}',
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+
+                    const Icon(
+                      Icons.arrow_forward,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
+
 
 
 class AddExamDialog extends ConsumerStatefulWidget {

@@ -80,35 +80,29 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
     List<dynamic>? cachedStudentList;
 
 
-
-
-    // if (studentState is AsyncData) {
-    //   listOfStudent = studentState.value;
-    // }
-
     return SafeArea(
       child: Scaffold(
-        floatingActionButton:
-            add(context, studentController, formKey),
+
+        floatingActionButton: add(context, studentController, formKey),
         // backgroundColor: const Color(0xFF3a3b45),
         body: Stack(
           children: [
-            const BackgroudContainer(),
+            const BackgroundContainer(),
             Column(
               children: [
-                // Padding(
-                //   padding: const EdgeInsets.fromLTRB(20.0, 40.0, 20.0, 20.0),
-                //   child: Center(
-                //     child: Text(
-                //       widget.courseName,
-                //       style: const TextStyle(
-                //         fontSize: 24,
-                //         fontWeight: FontWeight.bold,
-                //         color: Colors.white,
-                //       ),
-                //     ),
-                //   ),
-                // ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(20.0, 40.0, 20.0, 20.0),
+                  child: Center(
+                    child: Text(
+                      'Student List',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
                 Expanded(
                   child:studentState.when(
 
@@ -124,64 +118,16 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
                           ),
                         );
                       }
-                      return listofStudents(students);
+                      return listOfStudents(students);
 
                     },
                     loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (error, stack) => Center(child: Text('Error: $error')),
+                    error: (error, stack) {
+                      return listOfStudents(widget.studentList);
+                    },
                   ),
-                  //
-                  // listOfStudent!.isEmpty
-                  //     ? const Center(
-                  //         child: Text('No Student'),
-                  //       )
-                  //     : listofStudents(listOfStudent),
-                      // : (studentState is AsyncData)
-                      //     ? listofStudents(studentState.value)
-                      //     : listofStudents(listOfStudent),
-
                 ),
-                //
-                // Expanded(
-                //   child: studentState.when(
-                //     data: (students) {
-                //       if (students == null || students.isEmpty) {
-                //         // Check if listOfStudent is not null or empty
-                //         if (widget.studentList != null && widget.studentList!.isNotEmpty) {
-                //           // Display listOfStudent if it exists
-                //           cachedStudentList = widget.studentList;
-                //           return listofStudents(widget.studentList);
-                //         } else {
-                //           // Show a message if both students and listOfStudent are empty
-                //           return const Center(
-                //             child: Text(
-                //               'No Students available. Fetch Students By Selecting Range!',
-                //               style: TextStyle(
-                //                 color: Colors.white70,
-                //                 fontSize: 18,
-                //               ),
-                //             ),
-                //           );
-                //         }
-                //       }
-                //       // If students is not empty, display it
-                //       cachedStudentList = students;
-                //       return listofStudents(students);
-                //     },
-                //     loading: () => const Center(child: CircularProgressIndicator()),
-                //     error: (error, stack) {
-                //       if (cachedStudentList != null &&
-                //           cachedStudentList!.isNotEmpty) {
-                //         // Show a toast message for the error
-                //         Fluttertoast.showToast(
-                //           msg: "Error: $error",
-                //
-                //         );
-                //       }
-                //       return listofStudents(cachedStudentList);
-                //     }
-                //   ),
-                // ),
+
 
               ],
             ),
@@ -191,67 +137,40 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
     );
   }
 
-  Widget listofStudents(List<dynamic>? studentList) {
+
+
+
+  Widget listOfStudents(List<dynamic>? studentList) {
     return ListView.builder(
-      itemCount: studentList?.length,
-      itemBuilder: (context, index) {
-        print('The list of days is $studentList');
-        return GestureDetector(
-          onTap: () {
-            // navigateToDay(
-            //   context,
-            //   listOfDays[index],
-            //   attendanceSheetMap,
-            //   widget.courseName,
-            //   widget.isolateInterpreter,
-            //   widget.faceDetector,
-            //   widget.cameras,
-            //   widget.interpreter,
-            // );
+        itemCount: studentList?.length,
+        itemBuilder: (context, index) {
+
+        return ListTile(
+
+
+          onTap: (){
+
           },
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Container(
-              height: 60,
-              width: 200,
-              decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  gradient: LinearGradient(colors: [
-                    ColorConst.lightButtonColor,
-                    ColorConst.darkButtonColor
-                  ])),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      studentList![index]['name'],
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    // const Icon(
-                    //   Icons.arrow_forward,
-                    //   color: Colors.white,
-                    // ),
-                  ],
-                ),
-              ),
-            ),
+          title: Text(
+            studentList![index]['roll_number'].toString(),
+            style: const TextStyle(color: Colors.white70),
+          ),
+          subtitle: Text(
+            studentList[index]['name'],
+            style: const TextStyle(color: Colors.white70),
           ),
         );
       },
     );
+
   }
 
   Widget add(BuildContext context, GetAStudentNotifier studentController,GlobalKey<FormState> formKey,) {
     return Padding(
       padding: const EdgeInsets.only(right: 30, bottom: 50),
       child: FloatingActionButton(
-          backgroundColor: Colors.white,
-          shape: const CircleBorder(),
+          // backgroundColor: Colors.white,
+          // shape: const CircleBorder(),
           onPressed: () async {
 
             showDialog(
@@ -309,7 +228,7 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
                           Navigator.of(context).pop();
                         }
                       },
-                      child: const Text('Save'),
+                      child: const Text('Add'),
                     ),
                   ],
                 );
