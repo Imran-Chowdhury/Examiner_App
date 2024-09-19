@@ -252,7 +252,7 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
                   loading: () => const Center(child: CircularProgressIndicator()),
                   error: (error, stack) {
                     if (cachedStudentList != null && cachedStudentList!.isNotEmpty) {
-                      Fluttertoast.showToast(msg: "Error: $error");
+                      // Fluttertoast.showToast(msg: "Error: $error");
                       return listOfAttendedStudents(cachedStudentList, attendanceController);
                     } else {
                       return const Center(
@@ -274,7 +274,7 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
                     context,
                     detectController,
                     'Total Students',
-                    attended,
+                    cachedStudentList,
                     widget.day,
                     family,
                     recognizeController,
@@ -366,6 +366,7 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
           day: day,
           courseName: widget.courseName,
           allStudent: allStudent,
+          attended: attended,
           // livenessInterpreter: livenessInterpreter,
         ),
       ),

@@ -336,7 +336,14 @@ class _AddExamDialogState extends ConsumerState<AddExamDialog> {
           ),
           DropdownButton<String>(
             value: _selectedRoom,
-            hint: const Text('Select Room'),
+            hint: const Text(
+                'Select Room',
+              style: TextStyle(
+                fontSize: 16, // Match font size with text field
+                fontWeight: FontWeight.normal, // Set to normal to avoid bold effect
+                color: Colors.black, // Set color to match text field
+              ),
+            ),
             isExpanded: true,
             items: rooms.map((room) {
               return DropdownMenuItem<String>(

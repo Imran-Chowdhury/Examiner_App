@@ -33,6 +33,7 @@ class LiveFeedScreen extends ConsumerStatefulWidget {
     required this.courseName,
     required this.examId,
     required this.allStudent,
+    required this.attended,
   });
 
   // final FaceDetectionNotifier detectionController;
@@ -47,6 +48,7 @@ class LiveFeedScreen extends ConsumerStatefulWidget {
   late String family;
   late String nameOfScreen;
   late String day;
+  late List<dynamic>? attended;
 
   late String courseName;
   late List<dynamic> allStudent;
@@ -150,6 +152,7 @@ class _LiveFeedScreenState extends ConsumerState<LiveFeedScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => ConfirmScreen(
+                  attended: widget.attended,
                   originalName: studentData['name'],
                   originalRollNumber: studentData['roll_number'].toString(),
                   originalSemester: studentData['semester'].toString(),

@@ -15,6 +15,7 @@ class ConfirmScreen extends ConsumerStatefulWidget {
   final String originalSemester;
   final List<int> uint8list;
   Map<String,dynamic> studentData;
+  List<dynamic>? attended;
 
   ConfirmScreen({
     Key? key,
@@ -25,6 +26,7 @@ class ConfirmScreen extends ConsumerStatefulWidget {
     required this.originalSemester,
     required this.uint8list,
     required this.studentData,
+    required this.attended,
   }) : super(key: key);
 
   @override
@@ -43,9 +45,12 @@ class _ConfirmScreenState extends ConsumerState<ConfirmScreen> {
     AttendanceNotifier attendanceController = ref.watch(attendanceProvider(widget.examId).notifier);
     final attendanceState = ref.watch(attendanceProvider(widget.examId));
     List<dynamic>? attendedList;
+
     if(attendanceState is AsyncData){
       attendedList = attendanceState.value;
     }
+
+    print('The attended list printing from the Confirm screen is ${widget.attended}');
 
     return Scaffold(
       appBar: AppBar(
@@ -59,6 +64,15 @@ class _ConfirmScreenState extends ConsumerState<ConfirmScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 20,
         backgroundColor: const Color.fromARGB(255, 101, 123, 120),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back), // Custom back button icon
+          onPressed: () {
+            Navigator.pop(context); // First pop goes back from ConfirmScreen to LiveFeedScreen
+            Navigator.pop(context); // Second pop goes back from LiveFeedScreen to ExamScreen
+
+
+          },
+        ),
       ),
       body: Stack(
         children: [
@@ -113,8 +127,13 @@ class _ConfirmScreenState extends ConsumerState<ConfirmScreen> {
 
                   CustomButton(onPressed: () {
                     // Add action for confirm button
-                    attend(attendanceController, attendedList);
+                    if(attendedList!=null){
+                      attend(attendanceController, attendedList);
+                    }else{
+                      attend(attendanceController, widget.attended);
+                    }
 
+                    // attend(attendanceController, attendedList);
                     Navigator.pop(context); // First pop goes back from ConfirmScreen to LiveFeedScreen
                     Navigator.pop(context); // Second pop goes back from LiveFeedScreen to ExamScreen
 

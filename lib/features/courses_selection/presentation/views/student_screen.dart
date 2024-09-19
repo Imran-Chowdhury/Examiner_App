@@ -23,20 +23,10 @@ import 'exam_screen.dart';
 class CourseScreen extends ConsumerStatefulWidget {
   CourseScreen({
     super.key,
-    // required this.courseName,
-    // required this.semesterId,
-    // required this.isolateInterpreter,
-    // // required this.detectionController,
-    // required this.faceDetector,
-    // required this.cameras,
-    // required this.interpreter,
-    //
-
     required this.studentList,
     required this.examId
   });
-  // final String courseName;
-  // final String semesterId;
+
 
   List<dynamic>? studentList;
   final String examId;
