@@ -20,10 +20,6 @@ class AttendanceNotifier extends StateNotifier<AsyncValue<List<dynamic>?>> {
   AttendanceNotifier(this.repository) : super(const AsyncLoading());
 
   Future<void> getAttendedStudents(String examId,
-      // String? name,
-      // String day,
-      // String courseName,
-      // List<dynamic>? attended,
       ) async {
     state = const AsyncLoading();
     final result = await repository.getAttendedStudents(examId);
@@ -44,9 +40,9 @@ class AttendanceNotifier extends StateNotifier<AsyncValue<List<dynamic>?>> {
   Future<void> markAttendance(List<dynamic>? attendedList, String examId,
       Map<String, dynamic> studentData) async {
     state = const AsyncLoading();
-    print('The attended List is $attendedList');
-
-    print('The marked student is $studentData');
+    // print('The attended List is $attendedList');
+    //
+    // print('The marked student is $studentData');
 
 
     Map<String, dynamic> postData = {
@@ -61,7 +57,7 @@ class AttendanceNotifier extends StateNotifier<AsyncValue<List<dynamic>?>> {
           } ,
           (success) async {
             attendedList?.add(success);
-            print('The Success is $success');
+            // print('The Success is $success');
 
 
             state = AsyncValue.data(attendedList);

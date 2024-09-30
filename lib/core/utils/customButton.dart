@@ -3,53 +3,56 @@
 
 import 'package:flutter/material.dart';
 
-class CustomButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final String buttonName;
-  final Icon icon;
 
-  const CustomButton({Key? key, required this.onPressed, required this.buttonName, required this.icon}) : super(key: key);
+class CustomButton extends StatelessWidget {
+  CustomButton({
+    super.key,
+    required this.screenHeight,
+    required this.buttonName,
+    // required this.color,
+    required this.onpressed,
+    required this.icon,
+  });
+
+  final double screenHeight;
+  final String buttonName;
+  // final Color color;
+  Icon icon;
+  final void Function()?  onpressed;
 
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
-    double width =  MediaQuery.of(context).size.width;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: (75/width)*width,
-          height: (75/height)*height,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20.0),
-            gradient: const LinearGradient(
-              colors: [Color(0xFF0cdec1), Color(0xFF0ad8e6)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+    return Container(
+      width: 180, // Matches the width of the TextFormField
+      height: screenHeight * 0.07, // Match this value with the TextFormField's height
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          // backgroundColor: const Color(0XFFfc85ae),
+          backgroundColor: const Color(0xFFB37BA4),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(screenHeight * 0.023), // Same as TextFormField
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onPressed,
-              borderRadius: BorderRadius.circular(15.0),
-              child: Center(
-                child: icon,
+        ),
+        onPressed: onpressed,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+            icon,
+            SizedBox(width: screenHeight*0.01,),
+            Padding(
+              padding: const EdgeInsets.only(right: 20),
+              child: Text(
+                buttonName,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18),
               ),
             ),
-          ),
+          ],
         ),
-        const SizedBox(height: 8), // Add space between icon and text
-        Text(
-          buttonName,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+      ),
     );
+
   }
 }

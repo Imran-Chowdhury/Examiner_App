@@ -3,6 +3,8 @@
 import 'dart:convert';
 
 import 'package:camera/camera.dart';
+import 'package:face_roll_teacher/core/utils/customFab.dart';
+import 'package:face_roll_teacher/core/utils/studentCard.dart';
 import 'package:face_roll_teacher/features/courses_selection/presentation/riverpod/exam_riverpod.dart';
 import 'package:face_roll_teacher/features/courses_selection/presentation/views/student_screen.dart';
 
@@ -11,27 +13,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
-
-
-
-import '../../../../core/constants/constants.dart';
-import '../../../../core/utils/background_widget.dart';
-import '../../../../core/utils/customButton.dart';
 import '../../../face_detection/presentation/riverpod/face_detection_provider.dart';
 import '../../../live_feed/presentation/views/live_feed_screen.dart';
 import '../../../recognize_face/presentation/riverpod/recognize_face_provider.dart';
 import '../riverpod/attendance_riverpod.dart';
 
-// ignore: must_be_immutable
-class StudentScreen extends ConsumerStatefulWidget {
-  @override
-  ConsumerState<StudentScreen> createState() => _StudentScreenState();
 
-   StudentScreen({
+class AttendanceScreen extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<AttendanceScreen> createState() => _StudentScreenState();
+
+   AttendanceScreen({
     super.key,
-    // required this.attendedStudentsMap,
+
     required this.day,
     required this.courseName,
     required this.isolateInterpreter,
@@ -43,7 +40,7 @@ class StudentScreen extends ConsumerStatefulWidget {
     required this.room,
   });
 
-  // Map<String, List<dynamic>> attendedStudentsMap;
+
   String day;
   String courseName;
 
@@ -55,19 +52,22 @@ class StudentScreen extends ConsumerStatefulWidget {
   final String semesterId;
   String room;
 
-  // List<String> attendedStudentsList;
 }
 
 // 2. extend [ConsumerState]
-class _StudentScreenState extends ConsumerState<StudentScreen> {
+class _StudentScreenState extends ConsumerState<AttendanceScreen> {
   List<dynamic>? attended;
   late List<dynamic> allStudent;
   List<dynamic>? cachedStudentList;
+  String presentDate = "";
+
   @override
   void initState() {
     Future.microtask(() => ref.read(attendanceProvider(widget.examId).notifier).getAttendedStudents(widget.examId));
     getStudentList(widget.examId);
     // printAllSharedPreferences();
+    DateTime now = DateTime.now();
+    presentDate = DateFormat('yyyy-MM-dd').format(now);
     super.initState();
   }
 
@@ -98,34 +98,26 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
     }else{
       // Decode the JSON string back to a list of students
       allStudent = jsonDecode(encodedStudentList);
-
     }
-
-
-
-    // return studentList;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Constants constant = Constants();
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final screenHeight = mediaQuery.size.height;
+
     String family = widget.examId;
     final detectController = ref.watch(faceDetectionProvider(family).notifier);
-    final recognizeController = ref.watch(recognizefaceProvider(family).notifier);
-    var studentState = ref.watch(getAStudentProvider(widget.examId));
-    var examDetailsState = ref.watch(examsDetailsProvider(widget.examId));
+    final recognizeController = ref.watch(recognizeFaceProvider(family).notifier);
+
 
 
 
     // final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
     var attendanceState = ref.watch(attendanceProvider(family));
-    AttendanceNotifier attendanceController =
-        ref.watch(attendanceProvider(family).notifier);
-
-
-
-
+    AttendanceNotifier attendanceController = ref.watch(attendanceProvider(family).notifier);
 
 
     ref.listen<AsyncValue<List<dynamic>?>>(getAStudentProvider(widget.examId), (previous, next) {
@@ -136,7 +128,6 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
             Fluttertoast.showToast(msg:'An Error Occurred');
           }else{
             allStudent = students;
-            // Fluttertoast.showToast(msg:'Student List Updated');
           }
 
         },
@@ -144,7 +135,7 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
           Fluttertoast.showToast(msg: 'Error: $error');
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        // loading: () {}
+
 
       );
     });
@@ -174,9 +165,7 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
      Navigator.push(
        context,
        MaterialPageRoute(
-         builder: (context) => CourseScreen(
-             // courseName: courseName,
-             // semesterId: semesterId,
+         builder: (context) => TotalStudentScreen(
              studentList: studentList,
              examId: widget.examId)
        ),
@@ -184,19 +173,29 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
    }
 
     return Scaffold(
+      floatingActionButton: (presentDate==widget.day)? CustomFab(
+          onPressed: () {
+            goToLiveFeedScreen(
+              context,
+              detectController,
+              'Total Students',
+              cachedStudentList,
+              widget.day,
+              family,
+              recognizeController,
+              allStudent,
+            );
+          },
+            icon:Icons.camera_alt) : null,
+
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            widget.courseName,
-            style: const TextStyle(
-                color: Colors.white,
-                fontSize: 25,
-                fontWeight: FontWeight.bold),
-          ),
+        title: Text(
+          widget.courseName,
+          style: const TextStyle(
+              color: Colors.black,
+              fontSize: 25,
+              fontWeight: FontWeight.bold),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
-        elevation: 20,
-        backgroundColor: const Color.fromARGB(255, 101, 123, 120),
         actions: [
           IconButton(onPressed: showRangeDialog, icon: const Icon(Icons.download)),
           IconButton(onPressed: () {
@@ -204,33 +203,46 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
           }, icon: const Icon(Icons.list_alt_outlined)),
         ],
       ),
+
       body: Stack(
         children: [
-          const BackgroundContainer(),
+
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
+
+              Center(
+                child: CircleAvatar(
+                  radius: screenWidth*0.14, // Adjust the radius as per your need
+                  backgroundImage: const AssetImage('assets/face_attendance.png'),
+                  backgroundColor: Colors.transparent, // Optional: Make the background transparent
+                ),
+              ),
               Center(
                 child: Text(
                   'Date - ${widget.day}',
                   style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500),
+                    color: Colors.black,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
+
+              SizedBox(height: screenWidth * 0.01),
+
               Center(
-                child: Text(
+                child:Text(
                   'Room: ${widget.room}',
                   style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500),
-                ),
+                    fontSize: 20,
+                    color: Colors.grey,
+                  ),
+                ) ,
               ),
               const SizedBox(height: 20),
 
-              // Wrapping the `Expanded` widget properly in the `Column` structure
               Expanded(
                 child: attendanceState.when(
                   data: (studentList) {
@@ -238,7 +250,7 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
                       return const Center(
                         child: Text(
                           'Sync and Start Attending Students',
-                          style: TextStyle(color: Colors.white70, fontSize: 18),
+                          style: TextStyle(color: Colors.black, fontSize: 18),
                         ),
                       );
                     }
@@ -252,8 +264,9 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
                   loading: () => const Center(child: CircularProgressIndicator()),
                   error: (error, stack) {
                     if (cachedStudentList != null && cachedStudentList!.isNotEmpty) {
-                      // Fluttertoast.showToast(msg: "Error: $error");
+
                       return listOfAttendedStudents(cachedStudentList, attendanceController);
+
                     } else {
                       return const Center(
                         child: Text(
@@ -268,22 +281,6 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
 
               const SizedBox(height: 20),
 
-              CustomButton(
-                onPressed: () {
-                  goToLiveFeedScreen(
-                    context,
-                    detectController,
-                    'Total Students',
-                    cachedStudentList,
-                    widget.day,
-                    family,
-                    recognizeController,
-                    allStudent,
-                  );
-                },
-                buttonName: '',
-                icon: const Icon(Icons.add_a_photo),
-              ),
             ],
           ),
         ],
@@ -294,9 +291,6 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
   Widget listOfAttendedStudents(
     List<dynamic>? attendedList,
     AttendanceNotifier attendanceController,
-    // List<dynamic>? attended,
-    // String day,
-    // String courseName,
   ) {
     return ListView.builder(
       itemCount: attendedList?.length,
@@ -305,33 +299,11 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
         String name = attendedList[index]['name'];
 
         return GestureDetector(
-          onLongPress: () {
+
+          child: studentCard(name, roll,() {
             showDeleteOption(context, name,roll,widget.examId, attendanceController, attendedList,);
-          },
-          child: ListTile(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-            leading: Container(
-              padding: const EdgeInsets.only(right: 12.0),
-              decoration: const BoxDecoration(
-                  border: Border(
-                      right: BorderSide(width: 1.0, color: Colors.white24))),
-              child: const Icon(Icons.person_2_outlined, color: Colors.white),
-            ),
-            title: Text(
-              roll,
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            subtitle:  Row(
-              children: <Widget>[
-               const Icon(Icons.linear_scale, color: ColorConst.darkButtonColor),
-                Text(name, style: const TextStyle(color: Colors.white))
-              ],
-            ),
-            // trailing: const Icon(Icons.keyboard_arrow_right,
-            //     color: Colors.white, size: 30.0),
-          ),
+          }, ),
+
         );
       },
     );
@@ -351,7 +323,6 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
 
     Navigator.push(
       context,
-      // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
       MaterialPageRoute(
         builder: (context) => LiveFeedScreen(
           examId: widget.examId,
@@ -367,7 +338,6 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
           courseName: widget.courseName,
           allStudent: allStudent,
           attended: attended,
-          // livenessInterpreter: livenessInterpreter,
         ),
       ),
     );
@@ -429,11 +399,6 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
                 TextButton(
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
-                      // Validation passed, proceed with saving
-
-                      // Perform save operation or any other logic here
-                      // attendanceController.manualAttend(attended,
-                      //     nameController.text.trim(), courseName, day);
 
                       Navigator.of(context).pop();
                     }
@@ -472,9 +437,6 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
             TextButton(
               child: const Text('Delete'),
               onPressed: () {
-                // Perform delete operation here
-                // attendanceController.deleteName(
-                //     attended, name, widget.courseName, day);
                 attendanceController.removeStudent(attended, rollNumber, examId);
                 Navigator.of(context).pop();
               },
@@ -503,8 +465,6 @@ class _StudentScreenState extends ConsumerState<StudentScreen> {
       },
     );
   }
-
-
 }
 
 
@@ -518,11 +478,11 @@ class RangeDialog extends StatefulWidget {
   final int initialMaxRoll;
 
   const RangeDialog({
-    Key? key,
+    super.key,
     required this.onConfirm,
     this.initialMinRoll = 0, // Optional initial values
     this.initialMaxRoll = 0,
-  }) : super(key: key);
+  });
 
   @override
   _RangeDialogState createState() => _RangeDialogState();

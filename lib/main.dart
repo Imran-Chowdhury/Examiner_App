@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/constants/constants.dart';
 import 'features/courses_selection/presentation/views/semester_selection_screen.dart';
-import 'features/train_face/presentation/views/home_screen.dart';
+// import 'features/train_face/presentation/views/home_screen.dart';
 
 void main() {
   WidgetsFlutterBinding
@@ -34,7 +34,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false, // Removes the debug banner
       theme: ThemeData(
-        scaffoldBackgroundColor: ColorConst.backgroundColor,
+        scaffoldBackgroundColor: const Color(0XFFfcfcfc),
         // colorScheme:
         //     ColorScheme.fromSeed(seedColor: ColorConst.backgroundColor),
         // useMaterial3: true,

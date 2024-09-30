@@ -10,10 +10,7 @@ import '../../../../core/base_state/base_state.dart';
 import '../../domain/use_case/face_detection_use_case.dart';
 import 'package:image/image.dart' as img;
 
-// final faceDetectionProvider =
-//     StateNotifierProvider<FaceDetectionNotifier, BaseState>((ref) =>
-//         FaceDetectionNotifier(
-//             ref: ref, useCase: ref.read(faceDetectionUseCaseProvider)));
+
 
 final faceDetectionProvider = StateNotifierProvider.family((ref, family) =>
     FaceDetectionNotifier(

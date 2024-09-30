@@ -5,7 +5,7 @@ import 'package:face_roll_teacher/features/courses_selection/presentation/riverp
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'exam_screen.dart';
+import 'attendance_screen.dart';
 
 class ConfirmScreen extends ConsumerStatefulWidget {
   final String examId;
@@ -37,6 +37,10 @@ class _ConfirmScreenState extends ConsumerState<ConfirmScreen> {
   @override
   Widget build(BuildContext context) {
 
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final screenHeight = mediaQuery.size.height;
+
 
 
 
@@ -54,35 +58,50 @@ class _ConfirmScreenState extends ConsumerState<ConfirmScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Confirm Details',
-          style: TextStyle(
-              color: Colors.white,
-              fontSize: 25,
-              fontWeight: FontWeight.bold),
-        ),
-        iconTheme: const IconThemeData(color: Colors.white),
-        elevation: 20,
-        backgroundColor: const Color.fromARGB(255, 101, 123, 120),
+      title: const Text(
+        'Confirm Details',
+        style: const TextStyle(
+            color: Colors.black,
+            fontSize: 25,
+            fontWeight: FontWeight.bold),
+      ),
+        // iconTheme: const IconThemeData(color: Colors.white),
+        // elevation: 20,
+        // backgroundColor: const Color.fromARGB(255, 101, 123, 120),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back button icon
           onPressed: () {
             Navigator.pop(context); // First pop goes back from ConfirmScreen to LiveFeedScreen
             Navigator.pop(context); // Second pop goes back from LiveFeedScreen to ExamScreen
 
-
           },
         ),
       ),
       body: Stack(
         children: [
-          const BackgroundContainer(),
+          // const BackgroundContainer(),
           Column(
           // crossAxisAlignment: CrossAxisAlignment.center,
           //   mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Display Image
             const SizedBox(height: 20,),
+            // CircleAvatar(
+            //   radius: 100.0, // Controls the size of the avatar
+            //   // backgroundColor: Colors.white, // White space around the image
+            //   backgroundColor: Colors.black, // Black space around the image
+            //   child: ClipOval(
+            //     child: SizedBox(
+            //       width: 112, // The actual width of your image
+            //       height: 112, // The actual height of your image
+            //       child: Image.memory(
+            //         imageBytes,
+            //         fit: BoxFit.contain, // Ensures the image is not stretched
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            SizedBox(height: 50 ,),
             Center(
               child: Image.memory(
                 imageBytes,
@@ -93,14 +112,14 @@ class _ConfirmScreenState extends ConsumerState<ConfirmScreen> {
             ),
             SizedBox(height: 20),
             // Display Text
-            Text('Name: ${widget.originalName}', style: TextStyle(color:Colors.white70, fontSize: 22)),
+            Text('Name: ${widget.originalName}', style: TextStyle(color:Colors.black, fontSize: 22)),
             SizedBox(height: 20),
-            Text('Roll Number: ${widget.originalRollNumber}', style: TextStyle(color:Colors.white70, fontSize: 22)),
+            Text('Roll Number: ${widget.originalRollNumber}', style: TextStyle(color:Colors.black, fontSize: 22)),
             SizedBox(height: 20),
             // Text('Session: ${widget.originalSession}', style: TextStyle(fontSize: 18)),
 
-            Text('Semester: ${widget.originalSemester}', style: const TextStyle(color:Colors.white70, fontSize: 22)),
-            SizedBox(height: 250),
+            Text('Semester: ${widget.originalSemester}', style: const TextStyle(color:Colors.black, fontSize: 22)),
+            SizedBox(height: 100),
             // Confirm Button
             Align(
               alignment: Alignment.bottomCenter,
@@ -108,40 +127,83 @@ class _ConfirmScreenState extends ConsumerState<ConfirmScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
 
-                  CustomButton(
-                      onPressed: () {
-                        // Add action for confirm button
-                        // attend(attendanceController, attendedList);
-
-                        Navigator.pop(context); // First pop goes back from ConfirmScreen to LiveFeedScreen
-                        Navigator.pop(context); // Second pop goes back from LiveFeedScreen to ExamScreen
 
 
-
-                      },
-                      buttonName: '',
-                      icon: const Icon(Icons.cancel)),
-
-
-                  const SizedBox(width: 80,),
-
-                  CustomButton(onPressed: () {
-                    // Add action for confirm button
-                    if(attendedList!=null){
-                      attend(attendanceController, attendedList);
-                    }else{
-                      attend(attendanceController, widget.attended);
-                    }
-
-                    // attend(attendanceController, attendedList);
-                    Navigator.pop(context); // First pop goes back from ConfirmScreen to LiveFeedScreen
-                    Navigator.pop(context); // Second pop goes back from LiveFeedScreen to ExamScreen
+                  // CustomButton(screenHeight: screenHeight,
+                  //     buttonName: 'Cancel',
+                  //     onpressed: () {
+                  //
+                  //
+                  //       Navigator.pop(context); // First pop goes back from ConfirmScreen to LiveFeedScreen
+                  //       Navigator.pop(context); // Second pop goes back from LiveFeedScreen to ExamScreen
+                  //
+                  //     },
+                  //     icon: const Icon(
+                  //         Icons.cancel,
+                  //       color: Colors.white,
+                  //       size: 40,
+                  //     )),
+                  //
 
 
+                   // SizedBox(width: 20,),
 
-                  },
-                      buttonName: '',
-                      icon: const Icon(Icons.check_box)),
+                  // CustomButton(
+                  //     onpressed: () {
+                  //   // Add action for confirm button
+                  //   if(attendedList!=null){
+                  //     attend(attendanceController, attendedList);
+                  //   }else{
+                  //     attend(attendanceController, widget.attended);
+                  //   }
+                  //
+                  //   // attend(attendanceController, attendedList);
+                  //   Navigator.pop(context); // First pop goes back from ConfirmScreen to LiveFeedScreen
+                  //   Navigator.pop(context); // Second pop goes back from LiveFeedScreen to ExamScreen
+                  //
+                  // },
+                  //     buttonName: 'Ok', icon:
+                  //    const Icon(
+                  //      Icons.check_box,
+                  //      color: Colors.white,
+                  //    size: 40,),
+                  //   screenHeight: screenHeight,
+                  // ),
+                  IconButton(
+                    icon: Icon(
+                        size: 80,
+                        Icons.cancel,
+                        color: Colors.red), // Red cancel icon
+                        onPressed: () {
+
+
+                          Navigator.pop(context); // First pop goes back from ConfirmScreen to LiveFeedScreen
+                          Navigator.pop(context); // Second pop goes back from LiveFeedScreen to ExamScreen
+
+                        }, // Trigger the passed function when pressed
+                      ),
+
+                  SizedBox(width: 20,),
+                  IconButton(
+                    icon: Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                      size: 80,
+                    ), // Green check icon
+                    onPressed: () {
+                      // Add action for confirm button
+                      if(attendedList!=null){
+                        attend(attendanceController, attendedList);
+                      }else{
+                        attend(attendanceController, widget.attended);
+                      }
+
+                      // attend(attendanceController, attendedList);
+                      Navigator.pop(context); // First pop goes back from ConfirmScreen to LiveFeedScreen
+                      Navigator.pop(context); // Second pop goes back from LiveFeedScreen to ExamScreen
+
+                    }, // Trigger the passed function when pressed
+                  ),
                 ],
               ),
             ),

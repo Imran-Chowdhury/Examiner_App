@@ -24,7 +24,7 @@ class ExamDetailsNotifier extends StateNotifier<AsyncValue<List<dynamic>>> {
     result.fold(
           (failure) => state = AsyncValue.error(failure['error'] ?? 'Failed to load Range', StackTrace.current),
           (students) async {
-            print(students);
+            // print(students);
 
             if(students!.isNotEmpty){
               final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -70,21 +70,25 @@ class GetAStudentNotifier extends StateNotifier<AsyncValue<List<dynamic>?>> {
 
 
   Future<void> getAStudent(String examId,String rollNumber) async{
+
     List<dynamic> allStudents = [];
     state = const AsyncValue.loading();
+
+
+
+
     final result = await repository.getAStudent(rollNumber);
 
     result.fold(
           (failure) => state = AsyncValue.error(failure['error'] ?? 'Failed to load exams', StackTrace.current),
           (student) async {
-        print(student);
+        // print(student);
 
         // Retrieve the JSON string using the examId as the key
         final SharedPreferences prefs = await SharedPreferences.getInstance();
 
 
         if(student.isNotEmpty){
-
 
           String? encodedStudentList = prefs.getString(examId);
 
@@ -98,17 +102,14 @@ class GetAStudentNotifier extends StateNotifier<AsyncValue<List<dynamic>?>> {
             String encodedStudentList = jsonEncode([student]);
             await prefs.setString(examId, encodedStudentList);
             allStudents = [student];
-
           }
         }
 
         state = AsyncValue.data(allStudents);
 
-      } ,
+      },
     );
   }
 }
 
 
-
-//State Provider and Notifier For attendance

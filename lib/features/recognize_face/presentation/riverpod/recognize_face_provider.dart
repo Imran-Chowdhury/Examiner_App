@@ -7,15 +7,9 @@ import '../../../../core/base_state/base_state.dart';
 
 import '../../domain/use_case/recognize_face_use_case.dart';
 
-// final recognizefaceProvider =
-//     StateNotifierProvider<RecognizeFaceNotifier, BaseState>(
-//   (ref) {
-//     return RecognizeFaceNotifier(
-//         ref: ref, useCase: ref.read(recognizeFaceUseCaseProvider));
-//   },
-// );
 
-final recognizefaceProvider = StateNotifierProvider.family(
+
+final recognizeFaceProvider = StateNotifierProvider.family(
   (ref, day) {
     return RecognizeFaceNotifier(
         ref: ref, useCase: ref.read(recognizeFaceUseCaseProvider));
@@ -58,28 +52,4 @@ class RecognizeFaceNotifier extends StateNotifier<BaseState> {
     return studentData;
   }
 
-  // Future<String> liveFeedRecognize(img.Image image, Interpreter interpreter,
-  //     IsolateInterpreter isolateInterpreter, String nameOfJsonFile, List<dynamic> allStudent) async {
-  //   state = const LoadingState();
-  //   final stopwatch = Stopwatch()..start();
-  //
-  //   final studentData = await useCase.recognizeFace(
-  //       image, interpreter, isolateInterpreter, nameOfJsonFile, allStudent);
-  //
-  //   stopwatch.stop();
-  //   final double elapsedSeconds = stopwatch.elapsedMilliseconds / 1000.0;
-  //
-  //   // Print the elapsed time in seconds
-  //   print('The Recognition Execution time: $elapsedSeconds seconds');
-  //
-  //   if (studentData.isNotEmpty) {
-  //     // print('the name is $name');
-  //     state = const SuccessState();
-  //   } else {
-  //     // print('No match!');
-  //     state = const ErrorState('No match!');
-  //   }
-  //
-  //   return studentData;
-  // }
 }

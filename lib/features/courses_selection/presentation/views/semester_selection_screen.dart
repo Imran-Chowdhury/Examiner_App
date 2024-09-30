@@ -9,13 +9,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
-
-import '../../../../core/utils/background_widget.dart';
 import '../../../../core/utils/courseButton.dart';
-import '../../../train_face/presentation/views/home_screen.dart';
-
 import 'course_selection_screen.dart';
 
 
@@ -98,19 +93,9 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
     // InterpreterOptions interpreterOptions = InterpreterOptions();
     // var interpreterOptions = InterpreterOptions()..useNnApiForAndroid = true;// didnt work for me
 
-    // var interpreterOptions = InterpreterOptions()..threads = 2;
+
     var interpreterOptions = InterpreterOptions()
       ..addDelegate(GpuDelegateV2()); //good
-
-    // if (Platform.isAndroid) {
-    //   interpreterOptions.addDelegate(XNNPackDelegate(
-    //       options:
-    //           XNNPackDelegateOptions(numThreads: Platform.numberOfProcessors)));
-    // }
-
-    // if (Platform.isIOS) {
-    //   interpreterOptions.addDelegate(GpuDelegate());
-    // }
 
     return await tf_lite.Interpreter.fromAsset('assets/facenet_512.tflite',
         options: interpreterOptions);
@@ -118,128 +103,143 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
 
   @override
   Widget build(BuildContext context) {
-    // 4. use ref.watch() to get the value of the provider
-    // final helloWorld = ref.watch(helloWorldProvider);
-    // Constants constant = Constants();
+
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final screenHeight = mediaQuery.size.height;
 
     return Scaffold(
-      // backgroundColor: Color(0xFF3a3b45),
-      body: Stack(children: [
-        // Background color with transparency
-        const BackgroundContainer(),
-
-        // Main content
+      body: Stack(
+          children: [
 
         SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 50, bottom: 50),
-                child: Text(
-                  'Semesters',
-                  style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
+              SizedBox(height: screenHeight * 0.057,),
+
+              Center(
+                child: Container(
+                  height: screenHeight*0.24, //80
+                  width: screenWidth*0.7, //180
+                  decoration:const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(
+                        'assets/exam_2.png',
+                      ),
+                      fit: BoxFit.fill,
+                    ),
+                    shape: BoxShape.rectangle,
+                  ),
                 ),
               ),
-              // const SizedBox(
-              //   height: 50,
-              // ),
+              SizedBox(height: screenHeight * 0.057,),
+              Padding(
+                padding: EdgeInsets.only(left: screenWidth*0.01),
+                child: const Text(
+                  'Examiner',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(height: screenHeight * 0.0115),
+
+              Padding(
+                padding: EdgeInsets.only(left: screenWidth*0.01),
+                child:  const Text(
+                  "An Advanced Attendance System!",
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+
               Center(
                 child: Row(
                   children: [
-                    const SizedBox(
-                      width: 25,
+
+                    Padding(
+                      padding: EdgeInsets.all(screenHeight * 0.01),
+                      child: Column(
+                        children: [
+
+                          SemesterButton(
+                            semesterName: '1st Semester',
+                            goToCourse: () {
+                              navigateToCourses(
+                                  context,
+                                  '1',
+                                  '1st Semester',
+                                  isolateInterpreter,
+                                  faceDetector,
+                                  cameras,
+                                  interpreter
+                              );
+                            },
+                            color: const Color(0xFFcabbe9),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+
+                          SemesterButton(
+                            semesterName: '3rd Semester',
+                            color: const Color(0xFFe4f1df),
+                            goToCourse: () {
+                              navigateToCourses(
+                                  context,
+                                  '3',
+                                  '3rd Semester',
+                                  isolateInterpreter,
+                                  faceDetector,
+                                  cameras,
+                                  interpreter);
+                            },
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+
+                          SemesterButton(
+                            semesterName: '5th Semester',
+
+                            color: const Color(0xFFcabbe9),
+                            goToCourse: () {
+                              navigateToCourses(
+                                  context,
+                                  '5',
+                                  '5th Semester',
+                                  isolateInterpreter,
+                                  faceDetector,
+                                  cameras,
+                                  interpreter);
+                            },
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+
+                          SemesterButton(
+                            semesterName: '7th Semester',
+                            color: const Color(0xFFe4f1df),
+                            goToCourse: () {
+                              navigateToCourses(
+                                  context,
+                                  '7',
+                                  '7th Semester',
+                                  isolateInterpreter,
+                                  faceDetector,
+                                  cameras,
+                                  interpreter);
+                                  },
+                                ),
+                              ],
+                            ),
                     ),
-                    Column(
-                      children: [
-                        // courseTile('Course 1', 'MAAM'),
-                        SemesterButton(
-                          // courseName: Constants.course_1,
-                          semesterName: '1st Semester',
 
-                          // courseTeacher: 'MAIM',
-                          goToCourse: () {
-                            navigateToCourses(
-                                context,
-                                '1',
-                                '1st Semester',
-                                isolateInterpreter,
-                                faceDetector,
-                                cameras,
-                                interpreter);
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        // courseTile('Course 4', 'MSA'),
-                        SemesterButton(
-                          semesterName: '3rd Semester',
-
-                          // courseName: Constants.course_2,
-                          // courseTeacher: 'MFK',
-                          goToCourse: () {
-                            //               (context, String courseName, tf_lite.IsolateInterpreter isolateInterpreter,
-                            // FaceDetector faceDetector,List<CameraDescription> cameras, tf_lite.Interpreter interpreter)
-                            navigateToCourses(
-                                context,
-                                '3',
-                                '3rd Semester',
-                                isolateInterpreter,
-                                faceDetector,
-                                cameras,
-                                interpreter);
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        // courseTile('Course 4', 'MSA'),
-                        SemesterButton(
-                          semesterName: '5th Semester',
-
-                          // courseName: Constants.course_2,
-                          // courseTeacher: 'MFK',
-                          goToCourse: () {
-                            //               (context, String courseName, tf_lite.IsolateInterpreter isolateInterpreter,
-                            // FaceDetector faceDetector,List<CameraDescription> cameras, tf_lite.Interpreter interpreter)
-                            navigateToCourses(
-                                context,
-                                '5',
-                                '5th Semester',
-                                isolateInterpreter,
-                                faceDetector,
-                                cameras,
-                                interpreter);
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        // courseTile('Course 4', 'MSA'),
-                        SemesterButton(
-                          semesterName: '7th Semester',
-
-                          // courseName: Constants.course_2,
-                          // courseTeacher: 'MFK',
-                          goToCourse: () {
-
-                            navigateToCourses(
-                                context,
-                                '7',
-                                '7th Semester',
-                                isolateInterpreter,
-                                faceDetector,
-                                cameras,
-                                interpreter);
-                          },
-                        ),
-                      ],
-                    ),
-                    // const Padding(padding: EdgeInsets.only(right: 1)),
                     const SizedBox(
                       width: 10.0,
                     ),
@@ -250,27 +250,25 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
                         ),
                         SemesterButton(
                             semesterName: '2nd Semester',
-                            // courseName: Constants.course_3,
-                            // courseTeacher: 'MSA',
+                          color: const Color(0xFFe4f1df),
                             goToCourse: () {
                               navigateToCourses(
                                   context,
                                   '2',
                                   '2nd Semester',
-
                                   isolateInterpreter,
                                   faceDetector,
                                   cameras,
                                   interpreter);
-                            }),
-                        // courseTile('Course 3', 'MFK'),
+                            },
+                        ),
+
                         const SizedBox(
                           height: 20,
                         ),
                         SemesterButton(
                           semesterName: '4th Semester',
-                          // courseName: Constants.course_4,
-                          // courseTeacher: 'JUA',
+                          color: const Color(0xFFcabbe9),
                           goToCourse: () {
                             navigateToCourses(
                                 context,
@@ -286,10 +284,10 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
                         const SizedBox(
                           height: 20,
                         ),
+
                         SemesterButton(
                           semesterName: '6th Semester',
-                          // courseName: Constants.course_4,
-                          // courseTeacher: 'JUA',
+                          color: const Color(0xFFe4f1df),
                           goToCourse: () {
                             navigateToCourses(
                                 context,
@@ -306,8 +304,7 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
                         ),
                         SemesterButton(
                           semesterName: '8th Semester',
-                          // courseName: Constants.course_4,
-                          // courseTeacher: 'JUA',
+                          color: const Color(0xFFcabbe9),
                           goToCourse: () {
                             navigateToCourses(
                                 context,
@@ -327,11 +324,11 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
                   ],
                 ),
               ),
-
             ],
           ),
         ),
-      ]),
+      ],
+      ),
     );
   }
 

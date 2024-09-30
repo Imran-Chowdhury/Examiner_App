@@ -1,16 +1,8 @@
 
-
-
-
-
-
-
+import 'package:face_roll_teacher/core/utils/nameCard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-
-import '../../../../core/constants/constants.dart';
-import '../../../../core/utils/background_widget.dart';
+import '../../../../core/utils/customFab.dart';
 import '../riverpod/course_screen_riverpod.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
@@ -22,17 +14,14 @@ import 'course_details_screen.dart';
 class CourseListScreen extends ConsumerStatefulWidget {
   final String semesterName;
   final String semesterId;
-  // final FaceDetectionNotifier detectionController;
-
   final FaceDetector faceDetector;
   late List<CameraDescription> cameras;
   final tf_lite.Interpreter interpreter;
   final tf_lite.IsolateInterpreter isolateInterpreter;
 
-  CourseListScreen({ required this.semesterName,
+  CourseListScreen({super.key,  required this.semesterName,
     required this.semesterId,
     required this.isolateInterpreter,
-    // required this.detectionController,
     required this.faceDetector,
     required this.cameras,
     required this.interpreter,});
@@ -51,66 +40,56 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> {
         title: Text(
           widget.semesterName,
           style: const TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontSize: 25,
               fontWeight: FontWeight.bold),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
-        elevation: 20,
-        backgroundColor: const Color.fromARGB(255, 101, 123, 120),
       ),
-      body: Stack(
-        children: [
-          const BackgroundContainer(),  // Background placed behind content
-          coursesAsync.when(
-            data: (coursesEither) {
-              return coursesEither.fold(
-                    (error) => Center(child: Text('Error: ${error['error'] ?? 'Unknown error'}')),
-                    (courses) {
-                  if (courses == null || courses.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        'No courses available. Add a course!',
-                        style: TextStyle(fontSize: 18, color: Colors.white70),
-                      ),
-                    );
-                  }
-                  return listOfCourses(courses);
-                },
-              );
+      body: coursesAsync.when(
+        data: (coursesEither) {
+          return coursesEither.fold(
+                (error) => Center(child: Text('Error: ${error['error'] ?? 'Unknown error'}')),
+                (courses) {
+              if (courses == null || courses.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No courses available. Add a course!',
+                    style: TextStyle(fontSize: 18, color: Colors.white70),
+                  ),
+                );
+              }
+              return listOfCourses(courses);
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) => Center(child: Text('Error: $error')),
-          ),
-        ],
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text('Error: $error')),
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(right: 30, bottom: 50),
-        child: FloatingActionButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => AddCourseDialog(semesterId: widget.semesterId),
-            );
-          },
-          child: const Icon(Icons.add),
-        ),
+      floatingActionButton: CustomFab(
+        onPressed:() {
+          showDialog(
+            context: context,
+            builder: (context) => AddCourseDialog(semesterId: widget.semesterId),
+          );
+
+      },
+          icon:Icons.library_add,
+
       ),
     );
 
   }
   Widget listOfCourses(List<dynamic>? courses) {
     return ListView.builder(
-      itemCount: courses?.length,
+      itemCount: courses?.length ?? 0,
       itemBuilder: (context, index) {
-
         return GestureDetector(
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => CourseDetailsScreen(
-                  courseName:courses[index]['name'].toString(),
+                  courseName: courses[index]['name'].toString(),
                   courseId: courses[index]['id'].toString(), // Pass courseId
                   semesterId: widget.semesterId, // Pass semesterId
                   isolateInterpreter: widget.isolateInterpreter,
@@ -122,35 +101,11 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> {
             );
           },
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Container(
-              height: 60,
-              width: 200,
-              decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  gradient: LinearGradient(colors: [
-                    ColorConst.lightButtonColor,
-                    ColorConst.darkButtonColor
-                  ])),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      courses![index]['name'],
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    const Icon(
-                      Icons.arrow_forward,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-              ),
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            child: NameCard(
+              color: const Color(0xFF8e74a6),
+              name: courses![index]['name'],
+              icon: Icons.class_outlined,
             ),
           ),
         );
@@ -160,10 +115,12 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> {
 }
 
 
+
+
 class AddCourseDialog extends ConsumerStatefulWidget {
   final String semesterId;
 
-  const AddCourseDialog({required this.semesterId});
+  const AddCourseDialog({super.key, required this.semesterId});
 
   @override
   _AddCourseDialogState createState() => _AddCourseDialogState();

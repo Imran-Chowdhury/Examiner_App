@@ -77,7 +77,8 @@ class _LiveFeedScreenState extends ConsumerState<LiveFeedScreen> {
   Future<void> initializeCameras() async {
     controller = CameraController(
       widget.cameras[1],
-      ResolutionPreset.low,
+      // ResolutionPreset.low,
+      ResolutionPreset.high,
       enableAudio: false,
     );
     controller.initialize().then((_) {
@@ -114,7 +115,7 @@ class _LiveFeedScreenState extends ConsumerState<LiveFeedScreen> {
     final detectController =
     ref.watch(faceDetectionProvider(widget.family).notifier);
     final recognizeController =
-    ref.watch(recognizefaceProvider(widget.family).notifier);
+    ref.watch(recognizeFaceProvider(widget.family).notifier);
 
     controller.startImageStream((image) async {
       numberOfFrames++;
@@ -174,7 +175,7 @@ class _LiveFeedScreenState extends ConsumerState<LiveFeedScreen> {
   }
 
   Widget build(BuildContext context) {
-    final recognizeState = ref.watch(recognizefaceProvider(widget.family));
+    final recognizeState = ref.watch(recognizeFaceProvider(widget.family));
     final detectState = ref.watch(faceDetectionProvider(widget.family));
 
     if (recognizeState is SuccessState && detectState is SuccessState) {

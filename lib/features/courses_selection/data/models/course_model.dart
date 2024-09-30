@@ -1,7 +1,7 @@
 import '../../domain/entities/course.dart';
 
 class CourseModel extends Course {
-  CourseModel({required String id, required String name}) : super(id: id, name: name);
+  CourseModel({required super.id, required super.name});
 
   factory CourseModel.fromJson(Map<String, dynamic> json) {
     return CourseModel(

@@ -2,15 +2,8 @@ import 'package:face_roll_teacher/features/courses_selection/domain/course_detai
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/repository/course_details_repository_impl.dart';
-import '../../data/repository/course_selection_repository_impl.dart';
 
-// final examsProvider = FutureProvider.family<List<dynamic>?, String>(
-//       (ref, courseId) async {
-//     final repository = ref.watch(courseDetailsRepositoryProvider);
-//     final result = await repository.getExams(courseId);
-//     return result.fold((failure) => throw Exception(failure['error']), (exams) => exams);
-//   },
-// );
+
 
 
 //Exam Fetching Notifier

@@ -1,12 +1,12 @@
 import 'package:camera/camera.dart';
+import 'package:face_roll_teacher/core/utils/customFab.dart';
+ import 'package:face_roll_teacher/core/utils/nameCard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/constants/constants.dart';
-import '../../../../core/utils/background_widget.dart';
 import '../riverpod/course_details_riverpod.dart';
-import 'exam_screen.dart';
+import 'attendance_screen.dart';
 
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
@@ -24,12 +24,11 @@ class CourseDetailsScreen extends ConsumerStatefulWidget {
 
    CourseDetailsScreen({
      required this.courseId,
-     required this.semesterId,
-     required this.courseName,
-    required this.isolateInterpreter,
-    required this.faceDetector,
-    required this.cameras,
-    required this.interpreter,});
+     required this.semesterId, required this.courseName,
+     required this.isolateInterpreter,
+     required this.faceDetector,
+     required this.cameras,
+     required this.interpreter,});
 
   @override
   _CourseDetailsScreenState createState() => _CourseDetailsScreenState();
@@ -64,100 +63,73 @@ class _CourseDetailsScreenState extends ConsumerState<CourseDetailsScreen> {
       );
     });
 
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final screenHeight = mediaQuery.size.height;
+
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
           widget.courseName,
           style: const TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontSize: 25,
               fontWeight: FontWeight.bold),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
-        elevation: 20,
-        backgroundColor: const Color.fromARGB(255, 101, 123, 120),
       ),
-      body: Stack(
-        children: [
-          const BackgroundContainer(),
-          examsAsync.when(
+      body: examsAsync.when(
 
-          data: (exams) {
-            if (exams == null || exams.isEmpty) {
-              return const Center(
-                child: Text(
-                  'No exams available. Add a new exam!',
-                  style: TextStyle(
-                    color: Colors.white70,
-                      fontSize: 18),
+      data: (exams) {
+        if (exams == null || exams.isEmpty) {
+          return Column(
+            mainAxisAlignment:MainAxisAlignment.center,
+            children: [
+          Center(
+          child: Container(
+          height: screenHeight*0.24, //80
+            width: screenWidth*0.8, //180
+            decoration:const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                  'assets/exam.png',
                 ),
-              );
-            }
-
-            return listOfExams(exams);
-
-            // return ListView.builder(
-            //   itemCount: exams.length,
-            //   itemBuilder: (context, index) {
-            //     print(exams);
-            //     return ListTile(
-            //       onLongPress: (){
-            //         _showDeleteDialog(context, exams[index]['id'].toString(), widget.courseId);
-            //
-            //       },
-            //       onTap: (){
-            //         Navigator.push(
-            //           context,
-            //           // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
-            //           MaterialPageRoute(
-            //             builder: (context) => StudentScreen(
-            //               day: exams[index]['exam_date'],
-            //               // attendedStudentsMap: attendanceSheet,
-            //               courseName: widget.courseName,
-            //               interpreter: widget.interpreter,
-            //               isolateInterpreter: widget.isolateInterpreter,
-            //               cameras: widget.cameras,
-            //               faceDetector: widget.faceDetector,
-            //               semesterId: widget.semesterId,
-            //               examId: exams[index]['id'].toString(),
-            //
-            //             ),
-            //           ),
-            //         );
-            //       },
-            //       title: Text(
-            //           'Exam Date: ${exams[index]['exam_date']}',
-            //               style: const TextStyle(color: Colors.white70),
-            //       ),
-            //       subtitle: Text(
-            //         'Room: ${exams[index]['room']}',
-            //         style: const TextStyle(color: Colors.white70),
-            //       ),
-            //     );
-            //   },
-            // );
-
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => Center(child: Text('Error: $error')),
-        ),
-      ],
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(right: 30, bottom: 50),
-        child: FloatingActionButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => AddExamDialog(
-                courseId: widget.courseId,
-                semesterId: widget.semesterId,
+                fit: BoxFit.fill,
               ),
-            );
-          },
-          child: const Icon(Icons.add),
+              shape: BoxShape.rectangle,
+            ),
+          ),
         ),
+           SizedBox(
+             height: screenHeight*.01,
+           ),
+           const Text(
+              "Add new exams!",
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
+          ],);
+        }
+
+        return listOfExams(exams);
+
+
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(child: Text('Error: $error')),
+              ),
+      floatingActionButton: CustomFab(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => AddExamDialog(
+              courseId: widget.courseId,
+              semesterId: widget.semesterId,
+            ),
+          );
+        },
+        icon:Icons.library_add,
       ),
     );
   }
@@ -180,7 +152,6 @@ class _CourseDetailsScreenState extends ConsumerState<CourseDetailsScreen> {
               await ref.read(deleteExamProvider.notifier).deleteExam(courseId, examId);
               Navigator.of(context).pop(); // Close the dialog
 
-              // await ref.refresh(examsProvider(widget.courseId).notifier).getExams(widget.courseId);
 
             },
             child: const Text('Delete'),
@@ -206,9 +177,8 @@ class _CourseDetailsScreenState extends ConsumerState<CourseDetailsScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => StudentScreen(
+                builder: (context) => AttendanceScreen(
                   day: exams[index]['exam_date'],
-                  // attendedStudentsMap: attendanceSheet,
                   courseName: widget.courseName,
                   interpreter: widget.interpreter,
                   isolateInterpreter: widget.isolateInterpreter,
@@ -223,54 +193,14 @@ class _CourseDetailsScreenState extends ConsumerState<CourseDetailsScreen> {
             );
           },
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Container(
-              height: 70,
-              width: 200,
-              decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  gradient: LinearGradient(colors: [
-                    ColorConst.lightButtonColor,
-                    ColorConst.darkButtonColor
-                  ])),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                  children: [
-
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Exam Date: ${exams![index]['exam_date'].toString()}',
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold),
-                        ),
-
-                        Text(
-                          'Room: ${exams[index]['room'].toString()}',
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-
-                    const Icon(
-                      Icons.arrow_forward,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-              ),
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            child: NameCard(
+              name:exams![index]['exam_date'].toString(),
+              details: 'Room: ${exams[index]['room'].toString()}',
+              color: const Color(0xFF9BCFAF),
+              icon: Icons.calendar_month,
             ),
+
           ),
         );
       },
@@ -284,7 +214,7 @@ class AddExamDialog extends ConsumerStatefulWidget {
   final String courseId;
   final String semesterId;
 
-  AddExamDialog({required this.courseId, required this.semesterId});
+  const AddExamDialog({super.key, required this.courseId, required this.semesterId});
 
   @override
   _AddExamDialogState createState() => _AddExamDialogState();
@@ -295,27 +225,51 @@ class _AddExamDialogState extends ConsumerState<AddExamDialog> {
   String? _selectedRoom;
   final rooms = List.generate(6, (index) => 'Room ${index + 1}'); // Rooms 1 to 6
 
+
   @override
   void dispose() {
     _dateController.dispose();
     super.dispose();
   }
 
+
   Future<void> _selectDate(BuildContext context) async {
+    // Get the current date
+    DateTime now = DateTime.now();
+
+    // Show the DatePicker dialog
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: now,
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
+
+    // Check if the user selected a date
     if (picked != null) {
+      // Format the picked date and the current date to 'yyyy-MM-dd' format
       final formattedDate = DateFormat('yyyy-MM-dd').format(picked);
-      setState(() {
-        // _dateController.text = picked.toIso8601String();
-        _dateController.text = formattedDate;
-      });
+      final presentDate = DateFormat('yyyy-MM-dd').format(now);
+
+      // Compare the picked date with the present date
+      if (formattedDate.compareTo(presentDate) < 0) {
+        // If the picked date is in the past, show an "Invalid Date" toast
+        Fluttertoast.showToast(
+          msg: 'Invalid Date',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+      } else {
+        // If the picked date is valid (today or in the future), update the TextFormField
+        setState(() {
+          _dateController.text = formattedDate;
+        });
+      }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -375,9 +329,6 @@ class _AddExamDialogState extends ConsumerState<AddExamDialog> {
                 final roomId = rooms.indexOf(_selectedRoom!) + 1; // Room ID is 1 to 6
                 final examData = {
                   'exam_date': _dateController.text,
-                  // 'room_id': roomId,
-                  // 'course_id': widget.courseId,
-                  // 'semester_id': widget.semesterId,
                 };
 
                 await ref
@@ -388,17 +339,9 @@ class _AddExamDialogState extends ConsumerState<AddExamDialog> {
                   await ref.refresh(examsProvider(widget.courseId).notifier).getExams(widget.courseId);
                 }
 
-
-
               if(addExamState is AsyncError){
                 Fluttertoast.showToast(msg: addExamState.value);
               }
-
-
-
-                // await ref.refresh(examsProvider(widget.courseId).notifier).getExams(widget.courseId);
-
-
 
                 Navigator.pop(context); // Close dialog
               }

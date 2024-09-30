@@ -1,5 +1,4 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+
 import 'dart:math';
 
 
@@ -9,24 +8,20 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
 import '../../../../core/utils/image_to_float32.dart';
 import '../../domain/repository/recognize_face_repository.dart';
-import '../data_source/recognize_face_data_source.dart';
-import '../data_source/recognize_face_data_source_impl.dart';
+
+
+
 
 final recognizeFaceRepositoryProvider = Provider((ref) =>
-    RecognizeFaceRepositoryImpl(
-        dataSource: ref.read(recognizeFaceDataSourceProvider)));
+    RecognizeFaceRepositoryImpl());
 
 class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
-  RecognizeFaceRepositoryImpl({required this.dataSource});
+  RecognizeFaceRepositoryImpl();
 
-  RecognizeFaceDataSource dataSource;
+
 
   @override
-  // Future<String> recognizeFace(
-  //     img.Image image,
-  //     Interpreter interpreter,
-  //     IsolateInterpreter isolateInterpreter,
-  //     String nameOfJsonFile)
+
   Future<Map<String,dynamic>> recognizeFace(
       img.Image image,
       tf_lite.Interpreter interpreter,
@@ -57,13 +52,7 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
 
     output = output.reshape([outputShapeLength]);
     var finalOutput = List.from(output);
-    print('The final output is $finalOutput');
-
-
-
-    // Map<String, List<dynamic>> trainings =
-    //     await dataSource.readMapFromSharedPreferences(nameOfJsonFile);
-
+    // print('The final output is $finalOutput');
 
     List<dynamic> trainings = allStudent;
 
@@ -76,7 +65,6 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
   }
 
   @override
-  // String recognition(Map<String, List<dynamic>> trainings, List<dynamic> finalOutput, double threshold) {
 
   Map<String,dynamic> recognition( List<dynamic> trainings, List<dynamic> finalOutput, double threshold) {
 
@@ -118,13 +106,8 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
         print('No match!');
 
         return {};
-      } else {
-        print('Yes!');
-        print('the person is $matchedName');
-        print('the minDistance is $minDistance');
-        // print('the Cosine distance is $maxDistance');
       }
-      // print('The avgMap is $avgMap');
+
 
       stopwatch.stop();
       final double elapsedSeconds = stopwatch.elapsedMilliseconds / 1000.0;
@@ -133,9 +116,9 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
       print('the studentData is $studentData');
       return studentData ;
 
-      // return matchedName + minDistance.toString();
+
     } catch (e) {
-      print(e);
+      // print(e);
       rethrow;
     }
   }
@@ -149,9 +132,6 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
       sum += pow((e1[i] - e2[i]), 2);
     }
 
-    // stopwatch.stop();
-    // final double elapsedSeconds = stopwatch.elapsedMilliseconds / 1000.0;
-    // print('Euclidean distance Time: $elapsedSeconds seconds');
     return sqrt(sum);
   }
 
