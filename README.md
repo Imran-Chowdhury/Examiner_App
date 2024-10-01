@@ -1,6 +1,6 @@
 # Examiner App
 
-The **Examiner** app is part of the Examiner project developed for the Department of Electrical and Electronic Engineering, University of Chittagong. This app is designed to facilitate the management of exams, student allocation, and attendance through the use of facial recognition technology. Teachers can create courses, schedule exams, acquire student information, and take attendance securely and efficiently using the app.
+The **Examiner** app is part of the Examiner project developed for the Department of Electrical and Electronic Engineering, University of Chittagong. This app is designed to facilitate the management of exams, student allocation, and attendance through the use of facial recognition technology. Teachers can create courses, schedule exams, acquire student information, and take attendance securely and efficiently using the app by preventing proxies.
 
 ## Features
 
