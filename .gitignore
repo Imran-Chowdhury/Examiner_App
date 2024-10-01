@@ -31,7 +31,7 @@ migrate_working_dir/
 .pub/
 /build/
 /assets/facenet_512.tflite
-
+/lib/core/network/urls.dart
 
 # Symbolication related
 app.*.symbols

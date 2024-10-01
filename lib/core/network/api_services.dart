@@ -2,18 +2,19 @@
 import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
+import 'package:face_roll_teacher/core/network/urls.dart';
 import 'package:http/http.dart' as http;
 
 
 class ApiService {
-  // String baseUrl =  'http://192.168.167.139:8000/'; //mobile
-  String baseUrl =  'http://192.168.5.139:8000/'; //wifi
-  // String baseUrl =  'http://192.168.0.106:8000/'; //wifi
+
+
+
 
 
 
   Future<Either<Map<String,dynamic>, List<dynamic>?>> getCourses(String semesterId) async {
-    String url = '${baseUrl}api/semesters/$semesterId/courses/';
+    String url = '${Urls.baseUrl}api/semesters/$semesterId/courses/';
 
 
 
@@ -43,7 +44,7 @@ class ApiService {
 
 
   Future<Either<Map<String,dynamic>,Map<String,dynamic>>> addCourses(String semesterId, Map<String,dynamic> courseData, List<dynamic>? listOfCourses,) async {
-    String url = '${baseUrl}api/semesters/$semesterId/add-course/';
+    String url = '${Urls.baseUrl}api/semesters/$semesterId/add-course/';
 
 
 
@@ -78,13 +79,12 @@ class ApiService {
 
 
 
-  // path('semesters/<int:semester_pk>/courses/<int:course_pk>/rooms/<int:room_pk>/exams/', ExamViewSet.as_view({'get': 'list', 'post': 'create'}), name='exam-list-create'),
 
   Future<Either<Map<String, dynamic>, List<dynamic>?>> getExams( String courseId,) async {
 
-    // String url = 'http://192.168.0.106:8000/api/semesters/$semesterId/courses/$courseId/rooms/$roomId/exams/';
 
-    String url = '${baseUrl}api/courses/$courseId/exams/';
+
+    String url = '${Urls.baseUrl}api/courses/$courseId/exams/';
 
     final response = await http.get(Uri.parse(url), headers: {'Content-Type': 'application/json'});
 
@@ -100,7 +100,7 @@ class ApiService {
   }
 
   Future<Either<Map<String, dynamic>, Map<String, dynamic>>> addExam(String semesterId,String courseId, String roomId, Map<String, dynamic> examData) async {
-    String url = '${baseUrl}api/semesters/$semesterId/courses/$courseId/rooms/$roomId/exams/';
+    String url = '${Urls.baseUrl}api/semesters/$semesterId/courses/$courseId/rooms/$roomId/exams/';
 
     final response = await http.post(
       Uri.parse(url),
@@ -119,7 +119,7 @@ class ApiService {
 
 
   Future<Either<Map<String, dynamic>, Map<String, dynamic>>> deleteExam(String courseId, String examId) async {
-    String url = '${baseUrl}api/courses/$courseId/exams/$examId/';
+    String url = '${Urls.baseUrl}api/courses/$courseId/exams/$examId/';
 
     final response = await http.delete(
       Uri.parse(url),
@@ -132,9 +132,6 @@ class ApiService {
       final Map<String, dynamic> responseBody = jsonDecode(response.body);
       print(responseBody);
       return Right(responseBody);
-      // return const Right({
-      //   "msg": "SuccessFully Deleted"
-      // });
     } else {
       final Map<String, dynamic> errorBody = jsonDecode(response.body);
       print(errorBody);
@@ -144,14 +141,14 @@ class ApiService {
 
 
   Future<Either<Map<String, dynamic>, Map<String, dynamic>>> getAStudent(String rollNumber) async {
-    String url = '${baseUrl}api/Students/$rollNumber/';
+    String url = '${Urls.baseUrl}api/Students/$rollNumber/';
     final response = await http.get(
       Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
         // Add token if required
       },
-      // body: jsonEncode(studentData),
+
     );
 
     if (response.statusCode == 200) {
@@ -167,7 +164,7 @@ class ApiService {
 
 
   Future<Either<Map<String, dynamic>, List<dynamic>?>> getStudentsByRange(String semesterId, String startRoll, String endRoll)  async {
-    String url = '${baseUrl}api/Students/semester/$semesterId/range/$startRoll/$endRoll/';
+    String url = '${Urls.baseUrl}api/Students/semester/$semesterId/range/$startRoll/$endRoll/';
     final response = await http.get(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
@@ -186,7 +183,7 @@ class ApiService {
   }
 
   Future<Either<Map<String, dynamic>, List<dynamic>?>> getAttendedStudents(String examId)async {
-    String url = '${baseUrl}api/exams/$examId/attendance/';
+    String url = '${Urls.baseUrl}api/exams/$examId/attendance/';
     final response = await http.get(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
@@ -207,7 +204,7 @@ class ApiService {
 
 
   Future<Either<Map<String, dynamic>, Map<String, dynamic>>> markAttendance(String examId, Map<String,dynamic> studentData) async {
-    String url = '${baseUrl}api/exams/$examId/mark_attendance/';
+    String url = '${Urls.baseUrl}api/exams/$examId/mark_attendance/';
     final response = await http.post(
       Uri.parse(url),
       headers: {
@@ -231,7 +228,7 @@ class ApiService {
 
 
   Future<Either<Map<String, dynamic>, Map<String, dynamic>>> removeStudent(List<dynamic>? studentList, String rollNumber, String examId) async {
-    String url = '${baseUrl}api/exams/$examId/student/$rollNumber/delete/';
+    String url = '${Urls.baseUrl}api/exams/$examId/student/$rollNumber/delete/';
     final response = await http.delete(
       Uri.parse(url),
       headers: {
