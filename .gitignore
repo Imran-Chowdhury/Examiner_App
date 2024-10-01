@@ -30,6 +30,8 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+/assets/facenet_512.tflite
+
 
 # Symbolication related
 app.*.symbols
