@@ -28,7 +28,9 @@ class SemesterSelectionScreen extends ConsumerStatefulWidget {
 class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScreen> {
   late FaceDetector faceDetector;
   late tf_lite.Interpreter interpreter;
+  late tf_lite.Interpreter livenessInterpreter;
   late tf_lite.IsolateInterpreter isolateInterpreter;
+  late  tf_lite.IsolateInterpreter livenessIsolateInterpreter;
   List<CameraDescription> cameras = [];
 
   @override
@@ -43,10 +45,15 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
 
   Future<void> loadModelsAndDetectors() async {
     // Load models and initialize detectors
-    interpreter = await loadModel();
-    isolateInterpreter =
-        await IsolateInterpreter.create(address: interpreter.address);
+    interpreter = await loadFaceNet();
+    isolateInterpreter = await IsolateInterpreter.create(address: interpreter.address);
     // livenessInterpreter = await loadLivenessModel();
+
+    livenessInterpreter = await loadAntiSpoof();
+    livenessIsolateInterpreter = await IsolateInterpreter.create(address: livenessInterpreter.address);
+
+
+
     cameras = await availableCameras();
 
     // Initialize face detector
@@ -89,15 +96,19 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
   //   );
   // }
 
-  Future<tf_lite.Interpreter> loadModel() async {
-    // InterpreterOptions interpreterOptions = InterpreterOptions();
-    // var interpreterOptions = InterpreterOptions()..useNnApiForAndroid = true;// didnt work for me
-
+  Future<tf_lite.Interpreter> loadFaceNet() async {
 
     var interpreterOptions = InterpreterOptions()
       ..addDelegate(GpuDelegateV2()); //good
-
     return await tf_lite.Interpreter.fromAsset('assets/facenet_512.tflite',
+        options: interpreterOptions);
+  }
+
+  Future<tf_lite.Interpreter> loadAntiSpoof() async {
+
+    var interpreterOptions = InterpreterOptions()
+      ..addDelegate(GpuDelegateV2()); //good
+    return await tf_lite.Interpreter.fromAsset('assets/FaceAntiSpoofing.tflite',
         options: interpreterOptions);
   }
 
@@ -173,6 +184,7 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
                                   context,
                                   '1',
                                   '1st Semester',
+                                  // livenessIsolateInterpreter,
                                   isolateInterpreter,
                                   faceDetector,
                                   cameras,
@@ -193,6 +205,7 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
                                   context,
                                   '3',
                                   '3rd Semester',
+                                  // livenessIsolateInterpreter,
                                   isolateInterpreter,
                                   faceDetector,
                                   cameras,
@@ -212,6 +225,7 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
                                   context,
                                   '5',
                                   '5th Semester',
+                                  // livenessIsolateInterpreter,
                                   isolateInterpreter,
                                   faceDetector,
                                   cameras,
@@ -230,6 +244,7 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
                                   context,
                                   '7',
                                   '7th Semester',
+                                  // livenessIsolateInterpreter,
                                   isolateInterpreter,
                                   faceDetector,
                                   cameras,
@@ -256,6 +271,7 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
                                   context,
                                   '2',
                                   '2nd Semester',
+                                  // livenessIsolateInterpreter,
                                   isolateInterpreter,
                                   faceDetector,
                                   cameras,
@@ -275,6 +291,7 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
                                 '4',
                                 '4th Semester',
                                 isolateInterpreter,
+                                // livenessIsolateInterpreter,
                                 faceDetector,
                                 cameras,
                                 interpreter);
@@ -294,6 +311,7 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
                                 '6',
                                 '6th Semester',
                                 isolateInterpreter,
+                                // livenessIsolateInterpreter,
                                 faceDetector,
                                 cameras,
                                 interpreter);
@@ -311,6 +329,7 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
                                 '8',
                                 '8th Semester',
                                 isolateInterpreter,
+                                // livenessIsolateInterpreter,
                                 faceDetector,
                                 cameras,
                                 interpreter);
@@ -337,6 +356,7 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
       context,
       String semesterId,
       String courseName,
+      // tf_lite.IsolateInterpreter livenessIsolateInterpreter,
       tf_lite.IsolateInterpreter isolateInterpreter,
       FaceDetector faceDetector,
       List<CameraDescription> cameras,
@@ -349,10 +369,13 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
             CourseListScreen(
               semesterId: semesterId,
               interpreter: interpreter,
+              // livenessIsolateInterpreter:livenessIsolateInterpreter,
               isolateInterpreter: isolateInterpreter,
               cameras: cameras,
               faceDetector: faceDetector,
               semesterName: courseName,
+              livenessIsolateInterpreter: livenessIsolateInterpreter,
+              livenessInterpreter: livenessInterpreter,
             ),
       ),
     );

@@ -10,7 +10,7 @@ import 'package:image/image.dart' as img;
 import '../../../../core/base_state/base_state.dart';
 import '../../../../core/utils/convert_camera_image_to_img_image.dart';
 import '../../../../core/utils/convert_camera_image_to_input_image.dart';
-import '../../../courses_selection/presentation/riverpod/attendance_riverpod.dart';
+
 import '../../../face_detection/presentation/riverpod/face_detection_provider.dart';
 import '../../../recognize_face/presentation/riverpod/recognize_face_provider.dart';
 
@@ -21,6 +21,7 @@ class LiveFeedScreen extends ConsumerStatefulWidget {
   LiveFeedScreen({
     super.key,
     required this.isolateInterpreter,
+    // required this.livenessIsolateInterpreter,
     // required this.detectionController,
     required this.faceDetector,
     required this.cameras,
@@ -34,6 +35,8 @@ class LiveFeedScreen extends ConsumerStatefulWidget {
     required this.examId,
     required this.allStudent,
     required this.attended,
+    required this.livenessInterpreter,
+    required this.livenessIsolateInterpreter
   });
 
   // final FaceDetectionNotifier detectionController;
@@ -41,6 +44,8 @@ class LiveFeedScreen extends ConsumerStatefulWidget {
   late List<CameraDescription> cameras;
   final tf_lite.Interpreter interpreter;
   final tf_lite.IsolateInterpreter isolateInterpreter;
+  final tf_lite.Interpreter livenessInterpreter;
+  final  tf_lite.IsolateInterpreter livenessIsolateInterpreter;
 
   // final tf_lite.Interpreter livenessInterpreter;
   late String studentFile;
@@ -108,6 +113,12 @@ class _LiveFeedScreenState extends ConsumerState<LiveFeedScreen> {
   Future<void> disposeController() async {
     await controller.stopImageStream();
     await controller.dispose();
+
+
+    widget.interpreter.close();
+    widget.livenessInterpreter.close();
+    widget.livenessIsolateInterpreter.close();
+    widget.isolateInterpreter.close();
     print('disposed');
   }
 
@@ -138,9 +149,12 @@ class _LiveFeedScreenState extends ConsumerState<LiveFeedScreen> {
             faceDetected[0],
             widget.interpreter,
             widget.isolateInterpreter,
+            widget.livenessInterpreter,
+            widget.livenessIsolateInterpreter,
             widget.studentFile,
             widget.allStudent,
           );
+
 
           if (studentData.isNotEmpty) {
             isRecognized = true; // Set the flag to stop further detection

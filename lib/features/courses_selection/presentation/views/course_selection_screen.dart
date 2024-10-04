@@ -18,13 +18,18 @@ class CourseListScreen extends ConsumerStatefulWidget {
   late List<CameraDescription> cameras;
   final tf_lite.Interpreter interpreter;
   final tf_lite.IsolateInterpreter isolateInterpreter;
+  final tf_lite.Interpreter livenessInterpreter;
+  final  tf_lite.IsolateInterpreter livenessIsolateInterpreter;
 
   CourseListScreen({super.key,  required this.semesterName,
     required this.semesterId,
     required this.isolateInterpreter,
     required this.faceDetector,
     required this.cameras,
-    required this.interpreter,});
+    required this.interpreter,
+    required this.livenessInterpreter,
+    required this.livenessIsolateInterpreter,
+  });
 
   @override
   _CourseListScreenState createState() => _CourseListScreenState();
@@ -93,9 +98,12 @@ class _CourseListScreenState extends ConsumerState<CourseListScreen> {
                   courseId: courses[index]['id'].toString(), // Pass courseId
                   semesterId: widget.semesterId, // Pass semesterId
                   isolateInterpreter: widget.isolateInterpreter,
+                  // livenessIsolateInterpreter:  widget.livenessIsolateInterpreter,
                   faceDetector: widget.faceDetector,
                   cameras: widget.cameras,
                   interpreter: widget.interpreter,
+                  livenessInterpreter: widget.livenessInterpreter,
+                  livenessIsolateInterpreter: widget.livenessIsolateInterpreter,
                 ),
               ),
             );

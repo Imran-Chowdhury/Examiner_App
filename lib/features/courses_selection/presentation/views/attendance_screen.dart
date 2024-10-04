@@ -32,12 +32,16 @@ class AttendanceScreen extends ConsumerStatefulWidget {
     required this.day,
     required this.courseName,
     required this.isolateInterpreter,
+     // required this.livenessIsolateInterpreter,
     required this.faceDetector,
     required this.cameras,
     required this.interpreter,
     required this.examId,
     required this.semesterId,
     required this.room,
+     required this.livenessIsolateInterpreter,
+     required this.livenessInterpreter
+
   });
 
 
@@ -48,6 +52,8 @@ class AttendanceScreen extends ConsumerStatefulWidget {
   late List<CameraDescription> cameras;
   final tf_lite.Interpreter interpreter;
   final tf_lite.IsolateInterpreter isolateInterpreter;
+  final tf_lite.Interpreter livenessInterpreter;
+  final tf_lite.IsolateInterpreter livenessIsolateInterpreter;
   final String examId;
   final String semesterId;
   String room;
@@ -327,7 +333,6 @@ class _StudentScreenState extends ConsumerState<AttendanceScreen> {
         builder: (context) => LiveFeedScreen(
           examId: widget.examId,
           isolateInterpreter: widget.isolateInterpreter,
-          // detectionController: detectController,
           faceDetector: widget.faceDetector,
           cameras: cameras,
           interpreter: widget.interpreter,
@@ -338,6 +343,9 @@ class _StudentScreenState extends ConsumerState<AttendanceScreen> {
           courseName: widget.courseName,
           allStudent: allStudent,
           attended: attended,
+          livenessInterpreter: widget.livenessInterpreter,
+          livenessIsolateInterpreter: widget.livenessIsolateInterpreter,
+
         ),
       ),
     );

@@ -6,7 +6,7 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import '../../../../core/base_state/base_state.dart';
 
 import '../../domain/use_case/recognize_face_use_case.dart';
-
+import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
 
 
 final recognizeFaceProvider = StateNotifierProvider.family(
@@ -25,16 +25,24 @@ class RecognizeFaceNotifier extends StateNotifier<BaseState> {
 
   Future<Map<String,dynamic>> pickImagesAndRecognize(
       img.Image image,
-      Interpreter interpreter,
-      IsolateInterpreter isolateInterpreter,
+      tf_lite.Interpreter interpreter,
+      tf_lite.IsolateInterpreter isolateInterpreter,
+      tf_lite.Interpreter livenessInterpreter,
+      tf_lite.IsolateInterpreter livenessIsolateInterpreter,
       String nameOfJsonFile,
-     List<dynamic> allStudent
+      List<dynamic> allStudent
       ) async {
     state = const LoadingState();
     final stopwatch = Stopwatch()..start();
 
     final studentData = await useCase.recognizeFace(
-        image, interpreter, isolateInterpreter, nameOfJsonFile,allStudent);
+        image,
+        interpreter,
+        isolateInterpreter,
+        livenessInterpreter,
+        livenessIsolateInterpreter,
+        nameOfJsonFile,
+        allStudent);
 
     stopwatch.stop();
     final double elapsedSeconds = stopwatch.elapsedMilliseconds / 1000.0;

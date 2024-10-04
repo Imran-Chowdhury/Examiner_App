@@ -34,6 +34,3 @@ Float32List imageToByteListFloat32(
 
 }
 
-
-
-
