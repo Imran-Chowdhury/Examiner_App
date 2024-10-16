@@ -59,7 +59,8 @@ class _SemesterSelectionScreenState extends ConsumerState<SemesterSelectionScree
     // Initialize face detector
     final faceDetectorOptions = FaceDetectorOptions(
       minFaceSize: 0.2,
-      performanceMode: FaceDetectorMode.accurate, // or .fast
+      // performanceMode: FaceDetectorMode.accurate, // or .fast
+      performanceMode: FaceDetectorMode.fast, // or .fast
     );
     faceDetector = FaceDetector(options: faceDetectorOptions);
   }
